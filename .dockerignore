@@ -1,0 +1,17 @@
+.git
+.dart_tool
+.flutter-plugins
+.flutter-plugins-dependencies
+.idea
+.vscode
+android/
+ios/
+linux/
+macos/
+windows/
+test/
+build/
+doc/
+Credenciales ssh.md
+implementation_plan.md
+task.md
