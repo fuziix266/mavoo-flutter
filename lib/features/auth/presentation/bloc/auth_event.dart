@@ -35,3 +35,21 @@ class AuthCheckRequested extends AuthEvent {}
 
 class AuthLogoutRequested extends AuthEvent {}
 
+class AuthGoogleLoginRequested extends AuthEvent {
+  final String email;
+  final String firstName;
+  final String lastName;
+  final String profilePic;
+
+  const AuthGoogleLoginRequested({
+    required this.email,
+    required this.firstName,
+    required this.lastName,
+    required this.profilePic,
+  });
+
+  @override
+  List<Object> get props => [email, firstName, lastName, profilePic];
+}
+
+

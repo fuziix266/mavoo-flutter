@@ -25,7 +25,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthRegisterRequested>(_onRegisterRequested);
     on<AuthCheckRequested>(_onCheckRequested);
     on<AuthLogoutRequested>(_onLogoutRequested);
+    on<AuthGoogleLoginRequested>(_onGoogleLoginRequested);
   }
+
 
   Future<void> _onLoginRequested(AuthLoginRequested event, Emitter<AuthState> emit) async {
     print('[AuthBloc] Login requested for: ${event.email}');
@@ -72,5 +74,17 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     await logoutUseCase();
     emit(AuthUnauthenticated());
   }
+
+  Future<void> _onGoogleLoginRequested(AuthGoogleLoginRequested event, Emitter<AuthState> emit) async {
+    emit(AuthLoading());
+    print('[AuthBloc] Google Login requested for: ${event.email}');
+    // TODO: Implement SocialLoginUseCase
+    // final result = await socialLoginUseCase(...);
+    // For now, fail or mock
+    await Future.delayed(const Duration(seconds: 1)); // Simulate API
+    // Emit error because backend connection is not fully wired in Bloc yet (requires Usecase injection)
+    emit(const AuthError('Social Login not fully connected to backend yet'));
+  }
+
 
 }
