@@ -242,8 +242,8 @@ class _LoginPageState extends State<LoginPage> {
               );
             },
           ),
-          ),
         ),
+
         const SizedBox(height: 20),
         
         Row(
@@ -353,7 +353,7 @@ class _LoginPageState extends State<LoginPage> {
       );
     }
   }
-  }
+
 
   Widget _buildGoogleButton() {
      return InkWell(
@@ -396,19 +396,20 @@ class _LoginPageState extends State<LoginPage> {
         final GoogleSignInAccount? account = await googleSignIn.signIn();
         
         if (account != null) {
-            // Send to Bloc (Need to implement AuthGoogleLoginRequested event)
-             ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Google Sign In Success: ${account.email}. Sending to backend...')));
-             // context.read<AuthBloc>().add(AuthGoogleLoginRequested(account));
-             // For now, since event is not yet created, just print/show snackbar.
-             // But I should create the event. 
-             // Temporarily just print.
-             print("Google Account: ${account.email} ${account.displayName} ${account.photoUrl}");
+            // Send to Bloc
+            context.read<AuthBloc>().add(AuthGoogleLoginRequested(
+              email: account.email,
+              firstName: account.displayName?.split(' ').first ?? '',
+              lastName: account.displayName?.split(' ').skip(1).join(' ') ?? '',
+              profilePic: account.photoUrl ?? '',
+            ));
         }
       } catch (e) {
          print(e);
          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Google Sign In Failed: $e')));
       }
   }
+
 
 }
 
