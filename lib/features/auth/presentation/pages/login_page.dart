@@ -392,8 +392,10 @@ class _LoginPageState extends State<LoginPage> {
       try {
         final GoogleSignIn googleSignIn = GoogleSignIn(
           scopes: ['email', 'profile'],
+          clientId: '17805109238-cke84h5lueqj4v7b1v2vtoq5ljqqk7ku.apps.googleusercontent.com',
         );
         final GoogleSignInAccount? account = await googleSignIn.signIn();
+
         
         if (account != null) {
             // Send to Bloc
