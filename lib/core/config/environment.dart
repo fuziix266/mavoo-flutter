@@ -4,7 +4,7 @@ class Environment {
     // En producción (Dokploy), usa la URL de producción
     const String productionUrl = String.fromEnvironment(
       'API_BASE_URL',
-      defaultValue: 'https://mavoo-backend-pttow9-fa365c-62-146-181-70.traefik.me',
+      defaultValue: 'https://api.retrobox.cl',
     );
     
     // En desarrollo local
