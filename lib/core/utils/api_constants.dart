@@ -1,6 +1,8 @@
+import '../config/environment.dart';
+
 class ApiConstants {
-  // Ajustar esta URL según el entorno (simulador Android usa 10.0.2.2)
-  static const String baseUrl = 'http://localhost/mavoo/mavoo_laminas/public';
+  // URL base dinámica según el entorno (desarrollo/producción)
+  static String get baseUrl => Environment.apiBaseUrl;
   
   // Endpoints Auth
   static const String login = '/auth/login';
