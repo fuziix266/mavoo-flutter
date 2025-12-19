@@ -75,4 +75,21 @@ class AuthRepositoryImpl implements AuthRepository {
       return Left(CacheFailure(e.toString()));
     }
   }
+
+  @override
+  Future<Either<Failure, User>> socialLogin(Map<String, dynamic> userData) async {
+    try {
+      final user = await remoteDataSource.socialLogin(userData);
+      // Cache token and user data
+      if (user.token != null) {
+        await localDataSource.cacheToken(user.token!);
+      }
+      await localDataSource.cacheUser(user);
+      return Right(user);
+    } on ServerFailure catch (e) {
+      return Left(e);
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
 }

@@ -7,6 +7,7 @@ import '../models/user_model.dart';
 abstract class AuthRemoteDataSource {
   Future<UserModel> login(String email, String password);
   Future<UserModel> register(String email, String password, String username, String fullName);
+  Future<UserModel> socialLogin(Map<String, dynamic> userData);
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -85,6 +86,37 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       }
     } on DioException catch (e) {
       throw ServerFailure(e.response?.data['error'] ?? e.message);
+    }
+  }
+
+  @override
+  Future<UserModel> socialLogin(Map<String, dynamic> userData) async {
+    try {
+      final response = await apiClient.dio.post(
+        ApiConstants.socialLogin,
+        data: userData,
+      );
+
+      if (response.statusCode == 200) {
+        final data = response.data;
+        
+        // Backend returns response_code: '1' for success, '0' for failure
+        if (data['response_code'] == '0') {
+           throw ServerFailure(data['message'] ?? 'Social Login Failed');
+        }
+        
+        if (data['user'] == null) {
+          throw ServerFailure(data['message'] ?? 'User data missing');
+        }
+
+        final Map<String, dynamic> userMap = Map<String, dynamic>.from(data['user']);
+        userMap['token'] = data['token']; 
+        return UserModel.fromJson(userMap);
+      } else {
+        throw ServerFailure(response.data['message'] ?? response.data['error'] ?? 'Server Error');
+      }
+    } on DioException catch (e) {
+      throw ServerFailure(e.response?.data['message'] ?? e.response?.data['error'] ?? e.message ?? 'Network Error');
     }
   }
 }

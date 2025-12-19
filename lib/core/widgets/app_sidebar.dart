@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../features/auth/presentation/bloc/auth_bloc.dart';
 
 class AppSidebar extends StatelessWidget {
   final String currentRoute;
@@ -132,73 +134,95 @@ class AppSidebar extends StatelessWidget {
           ),
 
           // User Profile
-          InkWell(
-            onTap: onProfileClick,
-            child: Container(
-              margin: const EdgeInsets.all(12),
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.5),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: const Color(0xFF0046FC).withOpacity(0.1),
+          BlocBuilder<AuthBloc, AuthState>(
+            builder: (context, state) {
+              String displayName = 'User';
+              String username = '@user';
+              
+              if (state is AuthAuthenticated) {
+                displayName = state.user.fullName ?? state.user.username ?? 'User';
+                username = '@${state.user.username ?? 'user'}';
+              }
+              
+              return InkWell(
+                onTap: onProfileClick,
+                child: Container(
+                  margin: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.5),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: const Color(0xFF0046FC).withOpacity(0.1),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: (state is AuthAuthenticated && state.user.profileImage != null)
+                              ? null
+                              : const LinearGradient(
+                                  colors: [Color(0xFF0046FC), Color(0xFF00B2F6)],
+                                ),
+                          border: Border.all(
+                            color: const Color(0xFF0046FC).withOpacity(0.3),
+                            width: 2,
+                          ),
+                          image: (state is AuthAuthenticated && state.user.profileImage != null)
+                              ? DecorationImage(
+                                  image: NetworkImage(state.user.profileImage!),
+                                  fit: BoxFit.cover,
+                                )
+                              : null,
+                        ),
+                        child: (state is AuthAuthenticated && state.user.profileImage != null)
+                            ? null
+                            : Center(
+                                child: Text(
+                                  displayName.isNotEmpty ? displayName[0].toUpperCase() : 'U',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              displayName,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
+                              ),
+                            ),
+                            Text(
+                              username,
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Icon(
+                        Icons.arrow_forward_ios,
+                        size: 16,
+                        color: Colors.grey,
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFF0046FC), Color(0xFF00B2F6)],
-                      ),
-                      border: Border.all(
-                        color: const Color(0xFF0046FC).withOpacity(0.3),
-                        width: 2,
-                      ),
-                    ),
-                    child: const Center(
-                      child: Text(
-                        'U',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  const Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'User 0',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
-                          ),
-                        ),
-                        Text(
-                          '@user0',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const Icon(
-                    Icons.arrow_forward_ios,
-                    size: 16,
-                    color: Colors.grey,
-                  ),
-                ],
-              ),
-            ),
+              );
+            },
           ),
         ],
       ),

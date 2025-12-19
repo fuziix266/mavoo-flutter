@@ -77,37 +77,61 @@ class SettingsPage extends StatelessWidget {
                                 child: Column(
                                   children: [
                                     // Profile Image
-                                    Container(
-                                      width: 120,
-                                      height: 120,
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        shape: BoxShape.circle,
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: Colors.black.withOpacity(0.1),
-                                            blurRadius: 10,
-                                            offset: const Offset(0, 5),
+                                    BlocBuilder<AuthBloc, AuthState>(
+                                      builder: (context, state) {
+                                        String? profileImage;
+                                        
+                                        if (state is AuthAuthenticated) {
+                                          profileImage = state.user.profileImage;
+                                        }
+                                        
+                                        return Container(
+                                          width: 120,
+                                          height: 120,
+                                          decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            shape: BoxShape.circle,
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.black.withOpacity(0.1),
+                                                blurRadius: 10,
+                                                offset: const Offset(0, 5),
+                                              ),
+                                            ],
                                           ),
-                                        ],
-                                      ),
-                                      padding: const EdgeInsets.all(4),
-                                      child: const CircleAvatar(
-                                        radius: 56,
-                                        backgroundColor: Color(0xFFF0F0F0),
-                                        child: Icon(Icons.person, size: 60, color: Colors.grey),
-                                        // TODO: Load actual user image
-                                      ),
+                                          padding: const EdgeInsets.all(4),
+                                          child: CircleAvatar(
+                                            radius: 56,
+                                            backgroundColor: const Color(0xFFF0F0F0),
+                                            backgroundImage: profileImage != null 
+                                                ? NetworkImage(profileImage) 
+                                                : null,
+                                            child: profileImage == null 
+                                                ? const Icon(Icons.person, size: 60, color: Colors.grey)
+                                                : null,
+                                          ),
+                                        );
+                                      },
                                     ),
                                     const SizedBox(height: 16),
                                     // Username
-                                    const Text(
-                                      'User 0',
-                                      style: TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.black,
-                                      ),
+                                    BlocBuilder<AuthBloc, AuthState>(
+                                      builder: (context, state) {
+                                        String displayName = 'User';
+                                        
+                                        if (state is AuthAuthenticated) {
+                                          displayName = state.user.fullName ?? state.user.username ?? 'User';
+                                        }
+                                        
+                                        return Text(
+                                          displayName,
+                                          style: const TextStyle(
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.black,
+                                          ),
+                                        );
+                                      },
                                     ),
                                     const SizedBox(height: 8),
                                     // Online Status

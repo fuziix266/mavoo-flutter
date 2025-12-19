@@ -7,4 +7,5 @@ abstract class AuthRepository {
   Future<Either<Failure, User>> register(String email, String password, String username, String fullName);
   Future<Either<Failure, void>> logout();
   Future<Either<Failure, User>> getCurrentUser();
+  Future<Either<Failure, User>> socialLogin(Map<String, dynamic> userData);
 }

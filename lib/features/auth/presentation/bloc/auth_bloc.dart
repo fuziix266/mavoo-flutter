@@ -5,6 +5,7 @@ import '../../domain/usecases/check_auth_status_usecase.dart';
 import '../../domain/usecases/login_usecase.dart';
 import '../../domain/usecases/logout_usecase.dart';
 import '../../domain/usecases/register_usecase.dart';
+import '../../domain/usecases/social_login_usecase.dart';
 
 part 'auth_event.dart';
 part 'auth_state.dart';
@@ -14,12 +15,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final RegisterUseCase registerUseCase;
   final CheckAuthStatusUseCase checkAuthStatusUseCase;
   final LogoutUseCase logoutUseCase;
+  final SocialLoginUseCase socialLoginUseCase;
 
   AuthBloc({
     required this.loginUseCase,
     required this.registerUseCase,
     required this.checkAuthStatusUseCase,
     required this.logoutUseCase,
+    required this.socialLoginUseCase,
   }) : super(AuthInitial()) {
     on<AuthLoginRequested>(_onLoginRequested);
     on<AuthRegisterRequested>(_onRegisterRequested);
@@ -78,12 +81,21 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   Future<void> _onGoogleLoginRequested(AuthGoogleLoginRequested event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
     print('[AuthBloc] Google Login requested for: ${event.email}');
-    // TODO: Implement SocialLoginUseCase
-    // final result = await socialLoginUseCase(...);
-    // For now, fail or mock
-    await Future.delayed(const Duration(seconds: 1)); // Simulate API
-    // Emit error because backend connection is not fully wired in Bloc yet (requires Usecase injection)
-    emit(const AuthError('Social Login not fully connected to backend yet'));
+    
+    final userData = {
+      'email': event.email,
+      'first_name': event.firstName,
+      'last_name': event.lastName,
+      'profile_pic': event.profilePic,
+      'login_type': 'google',
+      'platform_type': 'Website',
+    };
+    
+    final result = await socialLoginUseCase(userData);
+    result.fold(
+      (failure) => emit(AuthError(failure.message)),
+      (user) => emit(AuthAuthenticated(user)),
+    );
   }
 
 
