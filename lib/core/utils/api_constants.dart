@@ -1,8 +1,20 @@
-import '../config/environment.dart';
+import 'package:flutter/foundation.dart';
 
 class ApiConstants {
-  // URL base dinámica según el entorno (desarrollo/producción)
-  static String get baseUrl => Environment.apiBaseUrl;
+  // URLs por entorno
+  static const String _localUrl = 'http://localhost/mavoo/mavoo_laminas/public';
+  static const String _prodUrl = 'https://api.retrobox.cl';
+
+  // Selecciona automáticamente la URL según el modo (Debug = Local, Release = Prod)
+  static String get baseUrl {
+    if (kReleaseMode) {
+      return _prodUrl;
+    } else {
+      // Por defecto en debug usamos local. 
+      // Si quieres probar producción en local, cambia esto a return _prodUrl;
+      return _localUrl;
+    }
+  }
   
   // Endpoints Auth
   static const String login = '/auth/login';

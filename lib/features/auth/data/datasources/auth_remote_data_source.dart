@@ -100,9 +100,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       if (response.statusCode == 200) {
         final data = response.data;
         
-        // Backend returns response_code: 1 for success, 0 for failure (can be string or int)
-        final responseCode = data['response_code'];
-        if (responseCode != null && (responseCode == 0 || responseCode == '0')) {
+        // Backend returns response_code: '1' for success, '0' for failure
+        if (data['response_code'] == '0') {
            throw ServerFailure(data['message'] ?? 'Social Login Failed');
         }
         
