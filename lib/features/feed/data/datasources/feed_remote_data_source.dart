@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:dio/dio.dart';
 import '../../../../core/error/failures.dart';
 import '../../../../core/utils/api_client.dart';
@@ -19,7 +20,16 @@ class FeedRemoteDataSourceImpl implements FeedRemoteDataSource {
       final response = await apiClient.dio.get(ApiConstants.posts);
 
       if (response.statusCode == 200) {
-        final data = response.data;
+        // Ensure response.data is a Map
+        final Map<String, dynamic> data;
+        if (response.data is String) {
+          // If response is a String, parse it as JSON
+          data = json.decode(response.data);
+        } else if (response.data is Map) {
+          data = Map<String, dynamic>.from(response.data);
+        } else {
+          throw ServerFailure('Invalid response format from server');
+        }
         
         if (data['posts'] == null) {
           return [];
