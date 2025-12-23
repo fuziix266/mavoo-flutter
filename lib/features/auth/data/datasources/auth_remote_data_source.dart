@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:dio/dio.dart';
 import '../../../../core/error/failures.dart';
 import '../../../../core/utils/api_client.dart';
@@ -98,15 +99,25 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       );
 
       if (response.statusCode == 200) {
-        final data = response.data;
+        // Ensure response.data is a Map
+        final Map<String, dynamic> data;
+        if (response.data is String) {
+          // If response is a String, parse it as JSON
+          data = json.decode(response.data);
+        } else if (response.data is Map) {
+          data = Map<String, dynamic>.from(response.data);
+        } else {
+          throw ServerFailure('Invalid response format from server');
+        }
         
         // Backend returns response_code: '1' for success, '0' for failure
-        if (data['response_code'] == '0') {
-           throw ServerFailure(data['message'] ?? 'Social Login Failed');
+        final responseCode = data['response_code']?.toString() ?? '0';
+        if (responseCode == '0') {
+           throw ServerFailure(data['message']?.toString() ?? 'Social Login Failed');
         }
         
         if (data['user'] == null) {
-          throw ServerFailure(data['message'] ?? 'User data missing');
+          throw ServerFailure(data['message']?.toString() ?? 'User data missing');
         }
 
         final Map<String, dynamic> userMap = Map<String, dynamic>.from(data['user']);
