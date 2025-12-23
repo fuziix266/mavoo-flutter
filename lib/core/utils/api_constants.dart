@@ -4,10 +4,10 @@ class ApiConstants {
   // URLs por entorno
   static const String _localUrl = 'http://localhost/mavoo/mavoo_laminas/public';
   // Permite configurar la URL de producción al compilar con --dart-define=API_URL=...
-  // Si no se define, usa el valor por defecto.
+  // Si no se define, usa  // URL de producción (path-based routing para evitar CORS)
   static const String _prodUrl = String.fromEnvironment(
     'API_URL', 
-    defaultValue: 'https://api.retrobox.cl'
+    defaultValue: 'https://retrobox.cl/api'
   );
 
   // Selecciona automáticamente la URL según el modo (Debug = Local, Release = Prod)
