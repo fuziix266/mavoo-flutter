@@ -3,7 +3,12 @@ import 'package:flutter/foundation.dart';
 class ApiConstants {
   // URLs por entorno
   static const String _localUrl = 'http://localhost/mavoo/mavoo_laminas/public';
-  static const String _prodUrl = 'https://api.retrobox.cl';
+  // Permite configurar la URL de producción al compilar con --dart-define=API_URL=...
+  // Si no se define, usa el valor por defecto.
+  static const String _prodUrl = String.fromEnvironment(
+    'API_URL', 
+    defaultValue: 'https://api.retrobox.cl'
+  );
 
   // Selecciona automáticamente la URL según el modo (Debug = Local, Release = Prod)
   static String get baseUrl {
