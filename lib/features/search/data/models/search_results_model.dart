@@ -2,7 +2,7 @@ import '../../../events/data/models/event_model.dart';
 import '../../../auth/data/models/user_model.dart';
 
 class SearchResults {
-  final List<User> people;
+  final List<UserModel> people;
   final List<Event> events;
 
   SearchResults({
@@ -13,7 +13,7 @@ class SearchResults {
   factory SearchResults.fromJson(Map<String, dynamic> json) {
     return SearchResults(
       people: (json['people'] as List<dynamic>?)
-              ?.map((item) => User.fromJson(item as Map<String, dynamic>))
+              ?.map((item) => UserModel.fromJson(item as Map<String, dynamic>))
               .toList() ??
           [],
       events: (json['events'] as List<dynamic>?)

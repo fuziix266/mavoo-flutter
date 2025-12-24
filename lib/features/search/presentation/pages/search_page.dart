@@ -97,7 +97,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.backgroundLight,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -232,7 +232,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
     );
   }
 
-  Widget _buildPersonItem(User person) {
+  Widget _buildPersonItem(UserModel person) {
     return ListTile(
       leading: CircleAvatar(
         backgroundImage: person.profileImage != null
@@ -242,7 +242,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
             ? const Icon(Icons.person)
             : null,
       ),
-      title: Text('${person.firstName} ${person.lastName}'),
+      title: Text(person.fullName ?? ''),
       subtitle: Text('@${person.username}'),
       onTap: () {
         // TODO: Navigate to profile
@@ -257,7 +257,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
         leading: event.imageUrl != null
             ? Image.network(event.imageUrl!, width: 60, height: 60, fit: BoxFit.cover)
             : const Icon(Icons.event, size: 40),
-        title: Text(event.title),
+        title: Text(event.name),
         subtitle: Text(event.location ?? ''),
         onTap: () {
           // TODO: Navigate to event details
