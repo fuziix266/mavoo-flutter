@@ -3,10 +3,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'features/auth/presentation/bloc/auth_bloc.dart';
 import 'features/auth/presentation/pages/login_page.dart';
-import 'features/feed/presentation/pages/home_page.dart';
-import 'core/widgets/main_layout.dart';
+import 'features/home/presentation/pages/home_page.dart';
+import 'core/widgets/app_layout.dart';
 import 'core/widgets/placeholder_page.dart';
 import 'features/settings/presentation/pages/settings_page.dart';
+import 'features/events/presentation/pages/all_events_page.dart';
+import 'features/events/presentation/pages/event_detail_page.dart';
+import 'features/events/data/models/event_model.dart';
 import 'injection_container.dart' as di;
 
 void main() async {
@@ -49,10 +52,7 @@ final GoRouter _router = GoRouter(
     ),
     ShellRoute(
       builder: (context, state, child) {
-        return MainLayout(
-          currentLocation: state.uri.toString(),
-          child: child,
-        );
+        return const AppLayout();
       },
       routes: [
         GoRoute(
@@ -86,6 +86,20 @@ final GoRouter _router = GoRouter(
         GoRoute(
           path: '/settings',
           builder: (context, state) => const SettingsPage(),
+        ),
+        GoRoute(
+          path: '/events/all',
+          builder: (context, state) {
+            final events = state.extra as List<dynamic>;
+            return AllEventsPage(events: events.cast());
+          },
+        ),
+        GoRoute(
+          path: '/events/:id',
+          builder: (context, state) {
+            final event = state.extra as Event;
+            return EventDetailPage(event: event);
+          },
         ),
         GoRoute(
           path: '/profile',
