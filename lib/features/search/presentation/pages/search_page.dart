@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_theme.dart';
 import '../../data/models/search_history_model.dart';
 import '../../data/models/search_results_model.dart';
 import '../../data/repositories/search_repository.dart';
 import '../../../events/data/models/event_model.dart';
-import '../../../../core/data/models/user_model.dart';
+import '../../../auth/data/models/user_model.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({Key? key}) : super(key: key);
