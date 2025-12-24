@@ -1,5 +1,5 @@
-import '../../events/data/models/event_model.dart';
-import '../../../core/data/models/user_model.dart';
+import '../../../events/data/models/event_model.dart';
+import '../../../../core/data/models/user_model.dart';
 
 class SearchResults {
   final List<User> people;

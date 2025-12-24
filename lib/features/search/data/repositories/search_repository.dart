@@ -2,27 +2,30 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/search_history_model.dart';
 import '../models/search_results_model.dart';
-import '../../../../core/services/api_service.dart';
 
 class SearchRepository {
-  final ApiService apiService;
+  final String baseUrl;
 
-  SearchRepository({required this.apiService});
+  SearchRepository({required this.baseUrl});
 
   /// Unified search across multiple types
   Future<SearchResults> search(String query, SearchType type) async {
     try {
-      final response = await apiService.post(
-        '/content/search/query',
-        body: {
+      final response = await http.post(
+        Uri.parse('$baseUrl/content/search/query'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
           'user_id': 1, // TODO: Get from auth
           'query': query,
           'type': _searchTypeToString(type),
-        },
+        }),
       );
 
-      if (response['response_code'] == '1') {
-        return SearchResults.fromJson(response);
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['response_code'] == '1') {
+          return SearchResults.fromJson(data);
+        }
       }
 
       return SearchResults(people: [], events: []);
@@ -44,16 +47,19 @@ class SearchRepository {
         'limit': limit.toString(),
       };
 
-      final response = await apiService.get(
-        '/content/search/history',
-        queryParameters: queryParams,
-      );
+      final uri = Uri.parse('$baseUrl/content/search/history')
+          .replace(queryParameters: queryParams);
 
-      if (response['response_code'] == '1') {
-        final List<dynamic> historyJson = response['history'] ?? [];
-        return historyJson
-            .map((item) => SearchHistory.fromJson(item as Map<String, dynamic>))
-            .toList();
+      final response = await http.get(uri);
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['response_code'] == '1') {
+          final List<dynamic> historyJson = data['history'] ?? [];
+          return historyJson
+              .map((item) => SearchHistory.fromJson(item as Map<String, dynamic>))
+              .toList();
+        }
       }
 
       return [];
@@ -72,16 +78,17 @@ class SearchRepository {
     int resultsCount = 0,
   }) async {
     try {
-      await apiService.post(
-        '/content/search/history/add',
-        body: {
+      await http.post(
+        Uri.parse('$baseUrl/content/search/history/add'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
           'user_id': 1, // TODO: Get from auth
           'query': query,
           'type': _searchTypeToString(type),
           if (resultId != null) 'result_id': resultId,
           if (resultType != null) 'result_type': _resultTypeToString(resultType),
           'results_count': resultsCount,
-        },
+        }),
       );
     } catch (e) {
       print('Error adding to history: $e');
@@ -91,12 +98,17 @@ class SearchRepository {
   /// Delete specific search history item (soft delete)
   Future<bool> deleteHistory(int historyId) async {
     try {
-      final response = await apiService.delete(
-        '/content/search/history/$historyId',
-        queryParameters: {'user_id': '1'}, // TODO: Get from auth
-      );
+      final uri = Uri.parse('$baseUrl/content/search/history/$historyId')
+          .replace(queryParameters: {'user_id': '1'}); // TODO: Get from auth
 
-      return response['response_code'] == '1';
+      final response = await http.delete(uri);
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return data['response_code'] == '1';
+      }
+
+      return false;
     } catch (e) {
       print('Error deleting history: $e');
       return false;
@@ -111,12 +123,17 @@ class SearchRepository {
         'type': type != null ? _searchTypeToString(type) : 'all',
       };
 
-      final response = await apiService.delete(
-        '/content/search/history/clear',
-        queryParameters: queryParams,
-      );
+      final uri = Uri.parse('$baseUrl/content/search/history/clear')
+          .replace(queryParameters: queryParams);
 
-      return response['response_code'] == '1';
+      final response = await http.delete(uri);
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return data['response_code'] == '1';
+      }
+
+      return false;
     } catch (e) {
       print('Error clearing history: $e');
       return false;

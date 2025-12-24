@@ -3,7 +3,6 @@ import '../../../../core/theme/app_colors.dart';
 import '../../data/models/search_history_model.dart';
 import '../../data/models/search_results_model.dart';
 import '../../data/repositories/search_repository.dart';
-import '../../../../core/services/api_service.dart';
 import '../../../events/data/models/event_model.dart';
 import '../../../../core/data/models/user_model.dart';
 
@@ -29,7 +28,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
     _searchController = TextEditingController();
-    _searchRepository = SearchRepository(apiService: ApiService());
+    _searchRepository = SearchRepository(baseUrl: 'http://localhost:8000');
     _loadRecentSearches();
     
     _searchController.addListener(_onSearchChanged);
