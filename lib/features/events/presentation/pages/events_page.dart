@@ -55,95 +55,93 @@ class _EventsPageState extends State<EventsPage> {
 
   @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return Container(
+        color: AppColors.backgroundLight,
+        child: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (featuredEvent == null && upcomingEvents.isEmpty) {
+      return Container(
+        color: AppColors.backgroundLight,
+        child: const Center(
+          child: Text(
+            'No upcoming events',
+            style: TextStyle(color: AppColors.textSecondary),
+          ),
+        ),
+      );
+    }
+
     return Container(
       color: AppColors.backgroundLight,
-      child: CustomScrollView(
-        slivers: [
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
           // Page Header
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Discover Events',
-                    style: TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.textPrimary,
-                    ),
+          Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Discover Events',
+                  style: TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textPrimary,
                   ),
-                  const SizedBox(height: 4),
-                  const Text(
-                    'Find your next race, match, or meetup nearby',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: AppColors.textSecondary,
-                    ),
+                ),
+                const SizedBox(height: 4),
+                const Text(
+                  'Find your next race, match, or meetup nearby',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: AppColors.textSecondary,
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
 
-          // Loading State
-          if (isLoading)
-            const SliverFillRemaining(
-              child: Center(child: CircularProgressIndicator()),
-            )
-          
-          // Empty State
-          else if (featuredEvent == null && upcomingEvents.isEmpty)
-            const SliverFillRemaining(
-              child: Center(
-                child: Text(
-                  'No upcoming events',
-                  style: TextStyle(color: AppColors.textSecondary),
-                ),
-              ),
-            )
-          
-          // Events Content
-          else ...[
-            // Featured Event Card (Large)
-            if (featuredEvent != null)
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: _FeaturedEventCard(event: featuredEvent!),
-                ),
-              ),
-
-            // Spacing
-            const SliverToBoxAdapter(
-              child: SizedBox(height: 32),
+          // Featured Event Card (Large)
+          if (featuredEvent != null)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: _FeaturedEventCard(event: featuredEvent!),
             ),
 
-            // Event Cards Grid
-            if (upcomingEvents.isNotEmpty)
-              SliverPadding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                sliver: SliverGrid(
-                  gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                    maxCrossAxisExtent: 350,
-                    mainAxisSpacing: 20,
-                    crossAxisSpacing: 20,
-                    childAspectRatio: 0.75,
-                  ),
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) {
+          // Spacing
+          const SizedBox(height: 32),
+
+          // Event Cards Grid
+          if (upcomingEvents.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  // Always 2 columns on desktop/tablet, 1 on mobile
+                  final crossAxisCount = constraints.maxWidth > 600 ? 2 : 1;
+                  return GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: crossAxisCount,
+                      mainAxisSpacing: 20,
+                      crossAxisSpacing: 20,
+                      childAspectRatio: 0.85,
+                    ),
+                    itemCount: upcomingEvents.length,
+                    itemBuilder: (context, index) {
                       return _EventCard(event: upcomingEvents[index]);
                     },
-                    childCount: upcomingEvents.length,
-                  ),
-                ),
+                  );
+                },
               ),
-
-            const SliverToBoxAdapter(
-              child: SizedBox(height: 80),
             ),
-          ],
+
+          const SizedBox(height: 80),
         ],
       ),
     );

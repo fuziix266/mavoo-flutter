@@ -62,60 +62,52 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Container(
       color: const Color(0xFFF8F9FA),
-      child: RefreshIndicator(
-        onRefresh: () async {
-          await _loadData();
-        },
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Stories Bar (Instagram-style)
-              StoriesBar(
-                repository: storyRepository,
-                currentUserId: 1, // TODO: Get from auth
-              ),
-              
-              // Posts Feed
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                child: Text(
-                  'Feed',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.grey.shade800,
-                  ),
-                ),
-              ),
-
-              if (isLoadingPosts)
-                const Center(child: Padding(
-                   padding: EdgeInsets.all(20),
-                   child: CircularProgressIndicator(),
-                ))
-              else if (posts.isEmpty)
-                const Center(
-                  child: Padding(
-                    padding: EdgeInsets.all(40),
-                    child: Text('No hay publicaciones aún', style: TextStyle(color: Colors.grey)),
-                  ),
-                )
-              else
-                ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: posts.length,
-                  itemBuilder: (context, index) {
-                    return PostCard(post: posts[index]);
-                  },
-                ),
-              
-              const SizedBox(height: 80), // Bottom padding
-            ],
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Stories Bar (Instagram-style)
+          StoriesBar(
+            repository: storyRepository,
+            currentUserId: 1, // TODO: Get from auth
           ),
-        ),
+          
+          // Posts Feed
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+            child: Text(
+              'Feed',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.grey.shade800,
+              ),
+            ),
+          ),
+
+          if (isLoadingPosts)
+            const Center(child: Padding(
+               padding: EdgeInsets.all(20),
+               child: CircularProgressIndicator(),
+            ))
+          else if (posts.isEmpty)
+            const Center(
+              child: Padding(
+                padding: EdgeInsets.all(40),
+                child: Text('No hay publicaciones aún', style: TextStyle(color: Colors.grey)),
+              ),
+            )
+          else
+            ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: posts.length,
+              itemBuilder: (context, index) {
+                return PostCard(post: posts[index]);
+              },
+            ),
+          
+          const SizedBox(height: 80), // Bottom padding
+        ],
       ),
     );
   }

@@ -51,55 +51,74 @@ class _AppLayoutState extends State<AppLayout> {
       backgroundColor: AppColors.backgroundLight,
       body: Column(
         children: [
-          // Top Navigation Bar (always visible)
+          // Top Navigation Bar (full width, always visible)
           if (!isMobile)
             TopNavigationBar(
               currentIndex: _currentIndex,
               onNavigationChanged: _onNavigationChanged,
             ),
           
-          // Main Content Area
+          // Main content area with max-width constraint
           Expanded(
-            child: Row(
-              children: [
-                // Left Sidebar (hidden on mobile)
-                if (!isMobile)
-                  LeftSidebar(
-                    currentIndex: _currentIndex,
-                    onNavigationChanged: _onNavigationChanged,
-                    expanded: expandLeftSidebar,
-                  ),
-                
-                // Center Content with max-width constraint
-                Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      border: showRightSidebar
-                          ? Border(
-                              right: BorderSide(
-                                color: AppColors.borderLight,
-                                width: 1,
-                              ),
-                            )
-                          : null,
-                    ),
-                    child: Center(
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(
-                          maxWidth: isMobile 
-                              ? double.infinity 
-                              : ResponsiveBreakpoints.maxFeedWidth,
+            child: Align(
+              alignment: Alignment.topLeft, // Align to left, space on right
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 1600),
+                child: Row(
+                  children: [
+                    // Left Sidebar (hidden on mobile) - with independent scroll
+                    if (!isMobile)
+                      SizedBox(
+                        width: expandLeftSidebar ? 360 : 72,
+                        child: LeftSidebar(
+                          currentIndex: _currentIndex,
+                          onNavigationChanged: _onNavigationChanged,
+                          expanded: expandLeftSidebar,
                         ),
-                        child: _getCurrentPage(),
+                      ),
+                    
+                    // Center Content with scroll
+                    Expanded(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Center feed content with its own scroll
+                          Expanded(
+                            child: SingleChildScrollView(
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  border: showRightSidebar
+                                      ? Border(
+                                          right: BorderSide(
+                                            color: AppColors.borderLight,
+                                            width: 1,
+                                          ),
+                                        )
+                                      : null,
+                                ),
+                                child: Center(
+                                  child: ConstrainedBox(
+                                    constraints: BoxConstraints(
+                                      maxWidth: isMobile 
+                                          ? double.infinity 
+                                          : ResponsiveBreakpoints.maxFeedWidth,
+                                    ),
+                                    child: _getCurrentPage(),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          
+                          // Right Sidebar (only on desktop for home/events) - independent, no scroll for now
+                          if (showRightSidebar)
+                            const RightSidebar(),
+                        ],
                       ),
                     ),
-                  ),
+                  ],
                 ),
-                
-                // Right Sidebar (only on desktop for home/events)
-                if (showRightSidebar)
-                  const RightSidebar(),
-              ],
+              ),
             ),
           ),
         ],

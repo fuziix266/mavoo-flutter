@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../theme/app_theme.dart';
+import '../../features/auth/presentation/bloc/auth_bloc.dart';
 
 class TopNavigationBar extends StatelessWidget {
   final int currentIndex;
@@ -53,11 +55,13 @@ class TopNavigationBar extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 32),
-                  // Search Bar
-                  Expanded(
+                  // Search Bar (clickable - navigates to search page)
+                  GestureDetector(
+                    onTap: () => context.go('/search'),
                     child: Container(
-                      constraints: const BoxConstraints(maxWidth: 280),
+                      constraints: const BoxConstraints(maxWidth: 180),
                       height: 40,
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
                       decoration: BoxDecoration(
                         color: AppColors.backgroundLight,
                         borderRadius: BorderRadius.circular(8),
@@ -65,26 +69,17 @@ class TopNavigationBar extends StatelessWidget {
                       ),
                       child: Row(
                         children: [
-                          const Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 12),
-                            child: Icon(
-                              Icons.search,
-                              color: AppColors.textSecondary,
-                              size: 20,
-                            ),
+                          const Icon(
+                            Icons.search,
+                            color: AppColors.textSecondary,
+                            size: 20,
                           ),
-                          const Expanded(
-                            child: TextField(
-                              decoration: InputDecoration(
-                                hintText: 'Search events, people, teams...',
-                                hintStyle: TextStyle(
-                                  color: AppColors.textSecondary,
-                                  fontSize: 14,
-                                ),
-                                border: InputBorder.none,
-                                isDense: true,
-                              ),
-                              style: TextStyle(fontSize: 14),
+                          const SizedBox(width: 8),
+                          const Text(
+                            'Buscar...',
+                            style: TextStyle(
+                              color: AppColors.textSecondary,
+                              fontSize: 14,
                             ),
                           ),
                         ],
@@ -142,20 +137,118 @@ class TopNavigationBar extends StatelessWidget {
                     color: AppColors.textSecondary,
                   ),
                   const SizedBox(width: 16),
-                  // Profile Avatar
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(color: AppColors.borderLight, width: 2),
-                      color: AppColors.backgroundLight,
-                    ),
-                    child: const Icon(
-                      Icons.person,
-                      color: AppColors.textSecondary,
-                      size: 20,
-                    ),
+                  // Profile Avatar with Custom Dropdown Menu
+                  BlocBuilder<AuthBloc, AuthState>(
+                    builder: (context, state) {
+                      String? profileImage;
+                      if (state is AuthAuthenticated) {
+                        profileImage = state.user.profileImage;
+                      }
+
+                      return PopupMenuButton<String>(
+                        offset: const Offset(-200, 50),
+                        elevation: 8,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        color: AppColors.surfaceLight,
+                        child: Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(color: AppColors.borderLight, width: 2),
+                            color: AppColors.backgroundLight,
+                          ),
+                          child: ClipOval(
+                            child: profileImage != null && profileImage.isNotEmpty
+                                ? Image.network(
+                                    profileImage,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return const Icon(
+                                        Icons.person,
+                                        color: AppColors.textSecondary,
+                                        size: 20,
+                                      );
+                                    },
+                                  )
+                                : const Icon(
+                                    Icons.person,
+                                    color: AppColors.textSecondary,
+                                    size: 20,
+                                  ),
+                          ),
+                        ),
+                        itemBuilder: (BuildContext context) => [
+                      // Settings
+                      PopupMenuItem<String>(
+                        value: 'settings',
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        child: _UserMenuItem(
+                          icon: Icons.settings,
+                          label: 'Configuración y privacidad',
+                        ),
+                      ),
+                      // Help
+                      PopupMenuItem<String>(
+                        value: 'help',
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        child: _UserMenuItem(
+                          icon: Icons.help_outline,
+                          label: 'Ayuda y soporte técnico',
+                        ),
+                      ),
+                      // Accessibility
+                      PopupMenuItem<String>(
+                        value: 'accessibility',
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        child: _UserMenuItem(
+                          icon: Icons.accessibility_new,
+                          label: 'Accesibilidad',
+                        ),
+                      ),
+                      // Language
+                      PopupMenuItem<String>(
+                        value: 'language',
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        child: _UserMenuItem(
+                          icon: Icons.language,
+                          label: 'Idiomas',
+                        ),
+                      ),
+                      const PopupMenuDivider(height: 1),
+                      // Logout
+                      PopupMenuItem<String>(
+                        value: 'logout',
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        child: _UserMenuItem(
+                          icon: Icons.logout,
+                          label: 'Cerrar sesión',
+                        ),
+                      ),
+                    ],
+                        onSelected: (String value) {
+                          switch (value) {
+                            case 'settings':
+                              // TODO: Navigate to settings
+                              break;
+                            case 'help':
+                              // TODO: Navigate to help
+                              break;
+                            case 'accessibility':
+                              // TODO: Navigate to accessibility
+                              break;
+                            case 'language':
+                              // TODO: Navigate to language settings
+                              break;
+                            case 'logout':
+                              context.read<AuthBloc>().add(AuthLogoutRequested());
+                              break;
+                          }
+                        },
+                      );
+                    },
                   ),
                 ],
               ),
@@ -195,6 +288,49 @@ class _NavIcon extends StatelessWidget {
           size: 28,
         ),
       ),
+    );
+  }
+}
+
+// Custom User Menu Item Widget
+class _UserMenuItem extends StatelessWidget {
+  final IconData icon;
+  final String label;
+
+  const _UserMenuItem({
+    required this.icon,
+    required this.label,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Container(
+          width: 36,
+          height: 36,
+          decoration: BoxDecoration(
+            color: AppColors.backgroundLight,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(
+            icon,
+            size: 20,
+            color: AppColors.textSecondary,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            label,
+            style: const TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w500,
+              color: AppColors.textPrimary,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

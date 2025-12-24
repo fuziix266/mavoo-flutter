@@ -5,8 +5,8 @@ class ResponsiveBreakpoints {
   static const double desktop = 1280;
   
   // Layout dimensions
-  static const double maxFeedWidth = 600;
-  static const double leftSidebarWidth = 240;
+  static const double maxFeedWidth = 680; // Increased from 600px
+  static const double leftSidebarWidth = 360; // Increased from 280px
   static const double leftSidebarCollapsed = 72;
   static const double rightSidebarWidth = 320;
   

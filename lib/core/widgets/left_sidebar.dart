@@ -18,7 +18,7 @@ class LeftSidebar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: expanded ? 256 : 72,
+      width: expanded ? 360 : 72, // Increased from 280 to 300
       decoration: BoxDecoration(
         color: AppColors.backgroundLight,
         border: Border(
@@ -49,16 +49,8 @@ class LeftSidebar extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 _NavItem(
-                  icon: Icons.explore,
-                  label: 'Explore',
-                  isActive: false,
-                  onTap: () {},
-                  showLabel: expanded,
-                ),
-                const SizedBox(height: 8),
-                _NavItem(
-                  icon: Icons.add_box,
-                  label: 'Add Post',
+                  icon: Icons.sports_soccer,
+                  label: 'Mi Actividad',
                   isActive: false,
                   onTap: () {},
                   showLabel: expanded,
@@ -91,8 +83,8 @@ class LeftSidebar extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 _NavItem(
-                  icon: Icons.settings,
-                  label: 'Settings',
+                  icon: Icons.add_box,
+                  label: 'Add Post',
                   isActive: false,
                   onTap: () {},
                   showLabel: expanded,
@@ -297,7 +289,7 @@ class _NavItem extends StatelessWidget {
                   child: Text(
                     label,
                     style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 15, // Increased from 14
                       fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
                       color: isActive ? AppColors.primary : AppColors.textSecondary,
                     ),

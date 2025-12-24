@@ -50,7 +50,7 @@ class _StoriesBarState extends State<StoriesBar> {
     }
 
     return Container(
-      height: 110,
+      height: 120,
       margin: const EdgeInsets.symmetric(vertical: 8),
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
@@ -92,7 +92,7 @@ class _StoryAvatar extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 80,
+        width: 100,
         margin: const EdgeInsets.only(right: 12),
         child: Column(
           children: [
@@ -117,7 +117,7 @@ class _StoryAvatar extends StatelessWidget {
                   color: Colors.white,
                 ),
                 child: CircleAvatar(
-                  radius: 30,
+                  radius: 40,
                   backgroundColor: Colors.grey.shade200,
                   backgroundImage: storyUser.profilePic != null &&
                           storyUser.profilePic!.isNotEmpty
@@ -125,7 +125,7 @@ class _StoryAvatar extends StatelessWidget {
                       : null,
                   child: storyUser.profilePic == null ||
                           storyUser.profilePic!.isEmpty
-                      ? Icon(Icons.person, color: Colors.grey.shade400, size: 30)
+                      ? Icon(Icons.person, color: Colors.grey.shade400, size: 40)
                       : null,
                 ),
               ),
@@ -135,7 +135,7 @@ class _StoryAvatar extends StatelessWidget {
             Text(
               storyUser.displayName.split(' ')[0], // Solo primer nombre
               style: const TextStyle(
-                fontSize: 12,
+                fontSize: 13,
                 fontWeight: FontWeight.w500,
               ),
               maxLines: 1,

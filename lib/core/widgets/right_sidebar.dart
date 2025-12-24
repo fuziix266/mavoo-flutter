@@ -9,7 +9,8 @@ class RightSidebar extends StatelessWidget {
     return Container(
       width: 320,
       padding: const EdgeInsets.all(24),
-      child: ListView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Weekly Goal Widget
           _WeeklyGoalWidget(),
