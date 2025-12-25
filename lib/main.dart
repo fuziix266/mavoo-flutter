@@ -12,6 +12,8 @@ import 'features/events/presentation/pages/all_events_page.dart';
 import 'features/events/presentation/pages/event_detail_page.dart';
 import 'features/events/data/models/event_model.dart';
 import 'features/search/presentation/pages/search_page.dart';
+import 'features/strava/presentation/pages/devices_page.dart';
+import 'features/strava/presentation/pages/strava_callback_page.dart';
 import 'injection_container.dart' as di;
 
 void main() async {
@@ -74,6 +76,10 @@ GoRouter _createRouter(BuildContext context) {
         path: '/',
         builder: (context, state) => const LoginPage(),
       ),
+      GoRoute(
+        path: '/strava/callback',
+        builder: (context, state) => const StravaCallbackPage(),
+      ),
       ShellRoute(
         builder: (context, state, child) {
           return const AppLayout();
@@ -106,6 +112,10 @@ GoRouter _createRouter(BuildContext context) {
           GoRoute(
             path: '/reels',
             builder: (context, state) => const PlaceholderPage(title: 'Reels'),
+          ),
+          GoRoute(
+            path: '/devices',
+            builder: (context, state) => const DevicesPage(),
           ),
           GoRoute(
             path: '/settings',

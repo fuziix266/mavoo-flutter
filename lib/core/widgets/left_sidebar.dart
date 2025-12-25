@@ -57,6 +57,14 @@ class LeftSidebar extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 _NavItem(
+                  icon: Icons.watch,
+                  label: 'Mis dispositivos',
+                  isActive: false,
+                  onTap: () => context.go('/devices'),
+                  showLabel: expanded,
+                ),
+                const SizedBox(height: 8),
+                _NavItem(
                   icon: Icons.notifications,
                   label: 'Notifications',
                   isActive: false,
