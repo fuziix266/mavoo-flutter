@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../theme/app_theme.dart';
 
@@ -36,7 +37,10 @@ class LeftSidebar extends StatelessWidget {
                   icon: Icons.home,
                   label: 'Home',
                   isActive: currentIndex == 0,
-                  onTap: () => onNavigationChanged(0),
+                  onTap: () {
+                    GoRouter.of(context).go('/home');
+                    onNavigationChanged(0);
+                  },
                   showLabel: expanded,
                 ),
                 const SizedBox(height: 8),
@@ -44,7 +48,10 @@ class LeftSidebar extends StatelessWidget {
                   icon: Icons.event,
                   label: 'Events',
                   isActive: currentIndex == 1,
-                  onTap: () => onNavigationChanged(1),
+                  onTap: () {
+                    onNavigationChanged(1);
+                    GoRouter.of(context).go('/home');
+                  },
                   showLabel: expanded,
                 ),
                 const SizedBox(height: 8),
@@ -60,7 +67,10 @@ class LeftSidebar extends StatelessWidget {
                   icon: Icons.watch,
                   label: 'Mis dispositivos',
                   isActive: false,
-                  onTap: () => context.go('/devices'),
+                  onTap: () {
+                    print('Navigating to /devices'); // Debug
+                    GoRouter.of(context).go('/devices');
+                  },
                   showLabel: expanded,
                 ),
                 const SizedBox(height: 8),

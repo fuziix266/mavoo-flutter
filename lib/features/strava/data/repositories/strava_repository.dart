@@ -11,7 +11,7 @@ class StravaRepository {
   /// Get OAuth authorization URL
   Future<String?> getAuthorizationUrl(int userId) async {
     try {
-      final uri = Uri.parse('$baseUrl/strava/auth-url')
+      final uri = Uri.parse('$baseUrl/content/strava/auth-url')
           .replace(queryParameters: {'user_id': userId.toString()});
 
       final response = await http.get(uri);
@@ -34,7 +34,7 @@ class StravaRepository {
   Future<StravaAthlete?> exchangeCode(String code, int userId) async {
     try {
       final response = await http.post(
-        Uri.parse('$baseUrl/strava/exchange'),
+        Uri.parse('$baseUrl/content/strava/exchange'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'user_id': userId,
@@ -59,7 +59,7 @@ class StravaRepository {
   /// Get athlete info
   Future<Map<String, dynamic>?> getAthlete(int userId) async {
     try {
-      final uri = Uri.parse('$baseUrl/strava/athlete')
+      final uri = Uri.parse('$baseUrl/content/strava/athlete')
           .replace(queryParameters: {'user_id': userId.toString()});
 
       final response = await http.get(uri);
@@ -87,7 +87,7 @@ class StravaRepository {
   /// Get recent activities
   Future<List<StravaActivity>> getActivities(int userId, {int page = 1, int perPage = 30}) async {
     try {
-      final uri = Uri.parse('$baseUrl/strava/activities')
+      final uri = Uri.parse('$baseUrl/content/strava/activities')
           .replace(queryParameters: {
             'user_id': userId.toString(),
             'page': page.toString(),
@@ -116,7 +116,7 @@ class StravaRepository {
   /// Disconnect Strava
   Future<bool> disconnect(int userId) async {
     try {
-      final uri = Uri.parse('$baseUrl/strava/disconnect')
+      final uri = Uri.parse('$baseUrl/content/strava/disconnect')
           .replace(queryParameters: {'user_id': userId.toString()});
 
       final response = await http.delete(uri);
@@ -136,7 +136,7 @@ class StravaRepository {
   /// Refresh access token
   Future<bool> refreshToken(int userId) async {
     try {
-      final uri = Uri.parse('$baseUrl/strava/refresh')
+      final uri = Uri.parse('$baseUrl/content/strava/refresh')
           .replace(queryParameters: {'user_id': userId.toString()});
 
       final response = await http.post(uri);

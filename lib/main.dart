@@ -56,18 +56,30 @@ GoRouter _createRouter(BuildContext context) {
       final authState = context.read<AuthBloc>().state;
       final isAuthenticated = authState is AuthAuthenticated;
       final isGoingToLogin = state.matchedLocation == '/';
+      final isStravaCallback = state.matchedLocation.startsWith('/strava/callback');
+      
+      print('Redirect check: ${state.matchedLocation}, auth: $isAuthenticated'); // Debug
+      
+      // Allow Strava callback without redirect
+      if (isStravaCallback) {
+        print('Allowing Strava callback');
+        return null;
+      }
       
       // If not authenticated and trying to access protected route, redirect to login
       if (!isAuthenticated && !isGoingToLogin) {
+        print('Not authenticated, redirecting to login');
         return '/';
       }
       
       // If authenticated and on login page, redirect to home
       if (isAuthenticated && isGoingToLogin) {
+        print('Authenticated on login, redirecting to home');
         return '/home';
       }
       
       // No redirect needed
+      print('No redirect needed');
       return null;
     },
     refreshListenable: GoRouterRefreshStream(context.read<AuthBloc>().stream),
@@ -82,7 +94,7 @@ GoRouter _createRouter(BuildContext context) {
       ),
       ShellRoute(
         builder: (context, state, child) {
-          return const AppLayout();
+          return AppLayout(child: child);
         },
         routes: [
           GoRoute(

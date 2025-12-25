@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'dart:html' as html;
+import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../data/models/strava_athlete_model.dart';
 import '../../data/models/strava_activity_model.dart';
@@ -26,83 +26,73 @@ class _DevicesPageState extends State<DevicesPage> {
     super.initState();
     _stravaRepository = StravaRepository(baseUrl: 'http://localhost:8000');
     _loadConnectionStatus();
-    _setupOAuthListener();
-  }
-
-  void _setupOAuthListener() {
-    // Listen for OAuth callback messages
-    html.window.onMessage.listen((event) {
-      if (event.data is String) {
-        final data = event.data as String;
-        if (data.startsWith('strava_code:')) {
-          final code = data.substring('strava_code:'.length);
-          _handleOAuthCallback(code);
-        }
-      }
-    });
   }
 
   Future<void> _loadConnectionStatus() async {
     setState(() => _isLoading = true);
 
-    final athleteData = await _stravaRepository.getAthlete(_userId);
-    
-    if (athleteData != null) {
-      setState(() {
-        _isConnected = athleteData['connected'] as bool;
-        _athlete = athleteData['athlete'] as StravaAthlete?;
-        _lastSync = athleteData['last_sync'] as String?;
-      });
+    try {
+      final athleteData = await _stravaRepository.getAthlete(_userId);
+      
+      if (athleteData != null) {
+        setState(() {
+          _isConnected = athleteData['connected'] == true;
+          if (_isConnected && athleteData['athlete'] != null) {
+            _athlete = StravaAthlete.fromJson(athleteData['athlete']);
+          }
+          _lastSync = athleteData['last_sync'] as String?;
+        });
 
-      if (_isConnected) {
-        _loadActivities();
+        if (_isConnected) {
+          _loadActivities();
+        }
       }
+    } catch (e) {
+      print('Error loading connection status: $e');
     }
 
     setState(() => _isLoading = false);
   }
 
   Future<void> _loadActivities() async {
-    final activities = await _stravaRepository.getActivities(_userId, perPage: 10);
-    setState(() {
-      _activities = activities;
-    });
+    try {
+      final activities = await _stravaRepository.getActivities(_userId, perPage: 10);
+      setState(() {
+        _activities = activities;
+      });
+    } catch (e) {
+      print('Error loading activities: $e');
+    }
   }
 
   Future<void> _connectStrava() async {
-    final authUrl = await _stravaRepository.getAuthorizationUrl(_userId);
-    
-    if (authUrl != null) {
-      // Open OAuth window
-      html.window.open(authUrl, 'Strava Authorization', 'width=600,height=800');
-    } else {
-      _showError('Failed to get authorization URL');
-    }
-  }
-
-  Future<void> _handleOAuthCallback(String code) async {
     setState(() => _isLoading = true);
-
-    final athlete = await _stravaRepository.exchangeCode(code, _userId);
     
-    if (athlete != null) {
-      setState(() {
-        _isConnected = true;
-        _athlete = athlete;
-      });
-      _loadActivities();
-      _showSuccess('Strava connected successfully!');
-    } else {
-      _showError('Failed to connect Strava');
+    try {
+      final authUrl = await _stravaRepository.getAuthorizationUrl(_userId);
+      
+      if (authUrl != null) {
+        final uri = Uri.parse(authUrl);
+        if (await canLaunchUrl(uri)) {
+          await launchUrl(uri);
+          _showInfo('Completa la autorización en el navegador. Luego vuelve y presiona "Verificar conexión".');
+        } else {
+          _showError('No se pudo abrir la URL de autorización');
+        }
+      } else {
+        _showError('Error al obtener URL de autorización');
+      }
+    } catch (e) {
+      _showError('Error: $e');
     }
-
+    
     setState(() => _isLoading = false);
   }
 
   Future<void> _disconnect() async {
     final confirmed = await _showConfirmDialog(
-      'Disconnect Strava',
-      'Are you sure you want to disconnect your Strava account?',
+      'Desconectar Strava',
+      '¿Estás seguro de que quieres desconectar tu cuenta de Strava?',
     );
 
     if (confirmed == true) {
@@ -117,9 +107,9 @@ class _DevicesPageState extends State<DevicesPage> {
           _activities = [];
           _lastSync = null;
         });
-        _showSuccess('Strava disconnected successfully');
+        _showSuccess('Strava desconectado correctamente');
       } else {
-        _showError('Failed to disconnect Strava');
+        _showError('Error al desconectar Strava');
       }
 
       setState(() => _isLoading = false);
@@ -130,7 +120,7 @@ class _DevicesPageState extends State<DevicesPage> {
     setState(() => _isLoading = true);
     await _loadActivities();
     setState(() => _isLoading = false);
-    _showSuccess('Activities synced successfully');
+    _showSuccess('Actividades sincronizadas');
   }
 
   void _showSuccess(String message) {
@@ -145,6 +135,16 @@ class _DevicesPageState extends State<DevicesPage> {
     );
   }
 
+  void _showInfo(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: AppColors.primary,
+        duration: const Duration(seconds: 5),
+      ),
+    );
+  }
+
   Future<bool?> _showConfirmDialog(String title, String message) {
     return showDialog<bool>(
       context: context,
@@ -154,11 +154,11 @@ class _DevicesPageState extends State<DevicesPage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: const Text('Cancelar'),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Confirm'),
+            child: const Text('Confirmar'),
           ),
         ],
       ),
@@ -167,36 +167,33 @@ class _DevicesPageState extends State<DevicesPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header
-            const Text(
-              'Mis Dispositivos',
-              style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary,
-              ),
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header
+          const Text(
+            'Mis Dispositivos',
+            style: TextStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
+              color: AppColors.textPrimary,
             ),
-            const SizedBox(height: 8),
-            const Text(
-              'Conecta tus dispositivos deportivos para sincronizar tus actividades',
-              style: TextStyle(
-                fontSize: 14,
-                color: AppColors.textSecondary,
-              ),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Conecta tus dispositivos deportivos para sincronizar tus actividades',
+            style: TextStyle(
+              fontSize: 14,
+              color: AppColors.textSecondary,
             ),
-            const SizedBox(height: 32),
+          ),
+          const SizedBox(height: 32),
 
-            // Strava Card
-            _buildStravaCard(),
-          ],
-        ),
+          // Strava Card
+          _buildStravaCard(),
+        ],
       ),
     );
   }
@@ -211,6 +208,7 @@ class _DevicesPageState extends State<DevicesPage> {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           // Strava Header
           Row(
@@ -264,6 +262,8 @@ class _DevicesPageState extends State<DevicesPage> {
 
   Widget _buildDisconnectedState() {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.min,
       children: [
         const Text(
           'Conecta tu cuenta de Strava para sincronizar automáticamente tus actividades deportivas.',
@@ -273,25 +273,36 @@ class _DevicesPageState extends State<DevicesPage> {
           ),
         ),
         const SizedBox(height: 24),
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            onPressed: _connectStrava,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFFC4C02),
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
+        ElevatedButton(
+          onPressed: _connectStrava,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFFFC4C02),
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
             ),
-            child: const Text(
-              'Conectar con Strava',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
-              ),
+          ),
+          child: const Text(
+            'Conectar con Strava',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: Colors.white,
             ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        OutlinedButton(
+          onPressed: _loadConnectionStatus,
+          style: OutlinedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+          child: const Text(
+            'Verificar conexión',
+            style: TextStyle(fontSize: 16),
           ),
         ),
       ],
@@ -301,6 +312,7 @@ class _DevicesPageState extends State<DevicesPage> {
   Widget _buildConnectedState() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
       children: [
         // Connection Status
         Container(
