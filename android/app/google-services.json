@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "786526489558",
+    "project_id": "mavoo-d5ae9",
+    "storage_bucket": "mavoo-d5ae9.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:786526489558:android:85fa387f9fa7d4e3147277",
+        "android_client_info": {
+          "package_name": "cl.retrobox.mavoo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "786526489558-feqt62oiuk066d66oatftkkckm9gl17r.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "cl.retrobox.mavoo",
+            "certificate_hash": "6c11d48c66253901817f7fec247d0b04596cd89a"
+          }
+        },
+        {
+          "client_id": "786526489558-t0n9bh82ssirkasteo47c1sipfvdqbo1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBm-4J9p2o-5_k0w51uq-BvptNUaCXG0d8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "786526489558-t0n9bh82ssirkasteo47c1sipfvdqbo1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
