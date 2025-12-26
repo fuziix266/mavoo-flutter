@@ -19,44 +19,24 @@ class AppLayout extends StatefulWidget {
 }
 
 class _AppLayoutState extends State<AppLayout> {
-  int _currentIndex = 0;
+
+  int _calculateSelectedIndex(BuildContext context) {
+    final String location = GoRouterState.of(context).matchedLocation;
+    if (location.startsWith('/home')) return 0;
+    if (location.startsWith('/events')) return 1;
+    if (location.startsWith('/explore')) return 2;
+    if (location.startsWith('/activity')) return 3; // Desktop
+    if (location.startsWith('/devices')) return 4; // Desktop
+    if (location.startsWith('/notifications')) return 5; // Desktop
+    if (location.startsWith('/messages')) return 6; // Desktop
+    if (location.startsWith('/reels')) return 7; // Desktop
+    if (location.startsWith('/profile')) return 8; // Desktop last item / Mobile last item
+    return 0;
+  }
 
   void _onNavigationChanged(int index) {
-    setState(() {
-      _currentIndex = index;
-    });
-  }
-
-  Widget _getMainContent() {
-    // Check if the child is one of the routed pages (not Home or Events)
-    // If child is HomePage or EventsPage from route, we still show based on index
-    // Otherwise, show the child from ShellRoute
-    
-    if (widget.child != null) {
-      // Check the current route to decide what to show
-      final location = GoRouterState.of(context).matchedLocation;
-      
-      // For Home and Events routes, use internal navigation
-      if (location == '/home') {
-        return _getInternalPage();
-      }
-      
-      // For other routes, show the ShellRoute child
-      return widget.child!;
-    }
-    
-    return _getInternalPage();
-  }
-
-  Widget _getInternalPage() {
-    switch (_currentIndex) {
-      case 0:
-        return const HomePage();
-      case 1:
-        return const EventsPage();
-      default:
-        return const HomePage();
-    }
+    // Navigation is now handled by the widgets themselves calling context.go()
+    // This callback might still be useful if we want to do something else
   }
 
   @override
@@ -66,13 +46,13 @@ class _AppLayoutState extends State<AppLayout> {
     final isTablet = ResponsiveBreakpoints.isTablet(screenWidth);
     final isDesktop = ResponsiveBreakpoints.isDesktop(screenWidth);
     
-    // Determine if we're showing a special page (not Home/Events)
-    final location = widget.child != null ? GoRouterState.of(context).matchedLocation : '/home';
-    final isSpecialPage = location != '/home' && widget.child != null;
+    final currentIndex = _calculateSelectedIndex(context);
+    final location = GoRouterState.of(context).matchedLocation;
     
+    // Only show right sidebar on Home
     final showRightSidebar = ResponsiveBreakpoints.showRightSidebar(screenWidth) && 
-                             (_currentIndex == 0 || _currentIndex == 1) &&
-                             !isSpecialPage;
+                             location == '/home';
+
     final expandLeftSidebar = ResponsiveBreakpoints.expandLeftSidebar(screenWidth);
     final showBottomNav = ResponsiveBreakpoints.showBottomNav(screenWidth);
 
@@ -83,8 +63,8 @@ class _AppLayoutState extends State<AppLayout> {
           // Top Navigation Bar (full width, always visible)
           if (!isMobile)
             TopNavigationBar(
-              currentIndex: _currentIndex,
-              onNavigationChanged: _onNavigationChanged,
+              currentIndex: currentIndex,
+              onNavigationChanged: (index) {}, // Handled by buttons
             ),
           
           // Main content area with max-width constraint
@@ -100,8 +80,8 @@ class _AppLayoutState extends State<AppLayout> {
                       SizedBox(
                         width: expandLeftSidebar ? 360 : 72,
                         child: LeftSidebar(
-                          currentIndex: _currentIndex,
-                          onNavigationChanged: _onNavigationChanged,
+                          currentIndex: currentIndex,
+                          onNavigationChanged: (index) {}, // Handled by buttons
                           expanded: expandLeftSidebar,
                         ),
                       ),
@@ -132,7 +112,7 @@ class _AppLayoutState extends State<AppLayout> {
                                           ? double.infinity 
                                           : ResponsiveBreakpoints.maxFeedWidth,
                                     ),
-                                    child: _getMainContent(),
+                                    child: widget.child,
                                   ),
                                 ),
                               ),
@@ -156,8 +136,8 @@ class _AppLayoutState extends State<AppLayout> {
       // Bottom Navigation (only on mobile)
       bottomNavigationBar: showBottomNav
           ? BottomNavigation(
-              currentIndex: _currentIndex,
-              onNavigationChanged: _onNavigationChanged,
+              currentIndex: currentIndex,
+              onNavigationChanged: (index) {}, // Handled by buttons
             )
           : null,
     );

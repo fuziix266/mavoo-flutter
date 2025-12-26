@@ -49,8 +49,19 @@ class LeftSidebar extends StatelessWidget {
                   label: 'Events',
                   isActive: currentIndex == 1,
                   onTap: () {
+                    GoRouter.of(context).go('/events');
                     onNavigationChanged(1);
-                    GoRouter.of(context).go('/home');
+                  },
+                  showLabel: expanded,
+                ),
+                const SizedBox(height: 8),
+                _NavItem(
+                  icon: Icons.explore,
+                  label: 'Explore',
+                  isActive: currentIndex == 2,
+                  onTap: () {
+                    GoRouter.of(context).go('/explore');
+                    onNavigationChanged(2);
                   },
                   showLabel: expanded,
                 ),
@@ -58,18 +69,21 @@ class LeftSidebar extends StatelessWidget {
                 _NavItem(
                   icon: Icons.sports_soccer,
                   label: 'Mi Actividad',
-                  isActive: false,
-                  onTap: () {},
+                  isActive: currentIndex == 3,
+                  onTap: () {
+                    GoRouter.of(context).go('/activity');
+                    onNavigationChanged(3);
+                  },
                   showLabel: expanded,
                 ),
                 const SizedBox(height: 8),
                 _NavItem(
                   icon: Icons.watch,
                   label: 'Mis dispositivos',
-                  isActive: false,
+                  isActive: currentIndex == 4,
                   onTap: () {
-                    print('Navigating to /devices'); // Debug
                     GoRouter.of(context).go('/devices');
+                    onNavigationChanged(4);
                   },
                   showLabel: expanded,
                 ),
@@ -77,26 +91,35 @@ class LeftSidebar extends StatelessWidget {
                 _NavItem(
                   icon: Icons.notifications,
                   label: 'Notifications',
-                  isActive: false,
+                  isActive: currentIndex == 5,
                   badge: '3',
-                  onTap: () {},
+                  onTap: () {
+                    GoRouter.of(context).go('/notifications');
+                    onNavigationChanged(5);
+                  },
                   showLabel: expanded,
                 ),
                 const SizedBox(height: 8),
                 _NavItem(
                   icon: Icons.message,
                   label: 'Messages',
-                  isActive: false,
+                  isActive: currentIndex == 6,
                   badge: '5',
-                  onTap: () {},
+                  onTap: () {
+                    GoRouter.of(context).go('/messages');
+                    onNavigationChanged(6);
+                  },
                   showLabel: expanded,
                 ),
                 const SizedBox(height: 8),
                 _NavItem(
                   icon: Icons.video_library,
                   label: 'Reels',
-                  isActive: false,
-                  onTap: () {},
+                  isActive: currentIndex == 7,
+                  onTap: () {
+                    GoRouter.of(context).go('/reels');
+                    onNavigationChanged(7);
+                  },
                   showLabel: expanded,
                 ),
                 const SizedBox(height: 8),
@@ -104,7 +127,9 @@ class LeftSidebar extends StatelessWidget {
                   icon: Icons.add_box,
                   label: 'Add Post',
                   isActive: false,
-                  onTap: () {},
+                  onTap: () {
+                    GoRouter.of(context).push('/add-post');
+                  },
                   showLabel: expanded,
                 ),
               ],
@@ -233,6 +258,20 @@ class LeftSidebar extends StatelessWidget {
                 );
               },
             ),
+            if (expanded)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                child: _NavItem(
+                  icon: Icons.person,
+                  label: 'Profile',
+                  isActive: currentIndex == 8,
+                  onTap: () {
+                    GoRouter.of(context).go('/profile');
+                    onNavigationChanged(8);
+                  },
+                  showLabel: expanded,
+                ),
+              ),
         ],
       ),
     );

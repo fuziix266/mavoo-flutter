@@ -1,3 +1,11 @@
+import 'features/explore/presentation/pages/explore_page.dart';
+import 'features/activity/presentation/pages/my_activity_page.dart';
+import 'features/notifications/presentation/pages/notifications_page.dart';
+import 'features/messages/presentation/pages/messages_page.dart';
+import 'features/reels/presentation/pages/reels_page.dart';
+import 'features/profile/presentation/pages/profile_page.dart';
+import 'features/posts/presentation/pages/add_post_page.dart';
+import 'features/events/presentation/pages/events_page.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -107,23 +115,23 @@ GoRouter _createRouter(BuildContext context) {
           ),
           GoRoute(
             path: '/explore',
-            builder: (context, state) => const PlaceholderPage(title: 'Explore'),
+            builder: (context, state) => const ExplorePage(),
           ),
           GoRoute(
-            path: '/add-post',
-            builder: (context, state) => const PlaceholderPage(title: 'Add Post'),
+            path: '/activity',
+            builder: (context, state) => const MyActivityPage(),
           ),
           GoRoute(
             path: '/notifications',
-            builder: (context, state) => const PlaceholderPage(title: 'Notifications'),
+            builder: (context, state) => const NotificationsPage(),
           ),
           GoRoute(
             path: '/messages',
-            builder: (context, state) => const PlaceholderPage(title: 'Messages'),
+            builder: (context, state) => const MessagesPage(),
           ),
           GoRoute(
             path: '/reels',
-            builder: (context, state) => const PlaceholderPage(title: 'Reels'),
+            builder: (context, state) => const ReelsPage(),
           ),
           GoRoute(
             path: '/devices',
@@ -134,22 +142,32 @@ GoRouter _createRouter(BuildContext context) {
             builder: (context, state) => const SettingsPage(),
           ),
           GoRoute(
-            path: '/events/all',
-            builder: (context, state) {
-              final events = state.extra as List<dynamic>;
-              return AllEventsPage(events: events.cast());
-            },
-          ),
-          GoRoute(
-            path: '/events/:id',
-            builder: (context, state) {
-              final event = state.extra as Event;
-              return EventDetailPage(event: event);
-            },
+            path: '/events',
+            builder: (context, state) => const EventsPage(),
+            routes: [
+               GoRoute(
+                path: 'all',
+                builder: (context, state) {
+                  final events = state.extra as List<dynamic>?;
+                  return AllEventsPage(events: events?.cast() ?? []);
+                },
+              ),
+              GoRoute(
+                path: ':id',
+                builder: (context, state) {
+                  final event = state.extra as Event;
+                  return EventDetailPage(event: event);
+                },
+              ),
+            ]
           ),
           GoRoute(
             path: '/profile',
-            builder: (context, state) => const PlaceholderPage(title: 'Profile'),
+            builder: (context, state) => const ProfilePage(),
+          ),
+          GoRoute(
+            path: '/add-post',
+             pageBuilder: (context, state) => const MaterialPage(fullscreenDialog: true, child: AddPostPage()),
           ),
         ],
       ),

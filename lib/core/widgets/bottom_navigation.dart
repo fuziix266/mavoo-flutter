@@ -1,3 +1,4 @@
+import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 
@@ -40,33 +41,45 @@ class BottomNavigation extends StatelessWidget {
                 icon: Icons.home,
                 label: 'Home',
                 isActive: currentIndex == 0,
-                onTap: () => onNavigationChanged(0),
-              ),
-              _NavItem(
-                icon: Icons.calendar_today,
-                label: 'Events',
-                isActive: currentIndex == 1,
-                onTap: () => onNavigationChanged(1),
+                onTap: () {
+                   GoRouter.of(context).go('/home');
+                   onNavigationChanged(0);
+                },
               ),
               _NavItem(
                 icon: Icons.explore,
                 label: 'Explore',
                 isActive: currentIndex == 2,
-                onTap: () => onNavigationChanged(2),
+                onTap: () {
+                  GoRouter.of(context).go('/explore');
+                  onNavigationChanged(2);
+                },
               ),
               _NavItem(
                 icon: Icons.add_box_outlined,
                 label: 'Post',
                 isActive: false,
                 onTap: () {
-                  // TODO: Open create post dialog
+                   GoRouter.of(context).push('/add-post');
+                },
+              ),
+              _NavItem(
+                icon: Icons.calendar_today,
+                label: 'Events',
+                isActive: currentIndex == 1,
+                onTap: () {
+                  GoRouter.of(context).go('/events');
+                  onNavigationChanged(1);
                 },
               ),
               _NavItem(
                 icon: Icons.person,
                 label: 'Profile',
-                isActive: currentIndex == 3,
-                onTap: () => onNavigationChanged(3),
+                isActive: currentIndex == 8, // Profile index shared
+                onTap: () {
+                  GoRouter.of(context).go('/profile');
+                  onNavigationChanged(8);
+                },
               ),
             ],
           ),
