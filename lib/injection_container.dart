@@ -16,11 +16,34 @@ import '../../features/feed/data/repositories/feed_repository_impl.dart';
 import '../../features/feed/domain/repositories/feed_repository.dart';
 import '../../features/feed/domain/usecases/get_posts_usecase.dart';
 import '../../features/feed/presentation/bloc/feed_bloc.dart';
+import 'features/profile/data/repositories/profile_repository.dart';
+import 'features/profile/presentation/bloc/profile_bloc.dart';
+import 'features/posts/data/repositories/post_repository.dart';
+import 'features/explore/data/repositories/explore_repository.dart';
+import 'features/explore/presentation/bloc/explore_bloc.dart';
+import 'features/notifications/data/repositories/notification_repository.dart';
+import 'features/notifications/presentation/bloc/notification_bloc.dart';
 import 'core/utils/api_client.dart';
 
 final sl = GetIt.instance;
 
 Future<void> init() async {
+  // Features - Notifications
+  sl.registerLazySingleton(() => NotificationRepository(baseUrl: 'http://localhost:8000'));
+  sl.registerFactory(() => NotificationBloc(repository: sl()));
+  // Features - Profile
+  sl.registerLazySingleton(() => PostRepository(baseUrl: 'http://localhost:8000'));
+  sl.registerLazySingleton(() => ProfileRepository(baseUrl: 'http://localhost:8000'));
+  sl.registerFactory(
+    () => ProfileBloc(
+      profileRepository: sl(),
+      postRepository: sl(),
+    ),
+  );
+
+  // Features - Explore
+  sl.registerLazySingleton(() => ExploreRepository(baseUrl: 'http://localhost:8000'));
+  sl.registerFactory(() => ExploreBloc(exploreRepository: sl()));
   // Core
   final sharedPreferences = await SharedPreferences.getInstance();
   sl.registerLazySingleton(() => sharedPreferences);
