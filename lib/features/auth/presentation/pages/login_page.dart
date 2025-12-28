@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import '../../../../features/auth/presentation/bloc/auth_bloc.dart';
 import 'login_theme.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -392,7 +393,11 @@ class _LoginPageState extends State<LoginPage> {
       try {
         final GoogleSignIn googleSignIn = GoogleSignIn(
           scopes: ['email', 'profile'],
-          serverClientId: '786526489558-t0n9bh82ssirkasteo47c1sipfvdqbo1.apps.googleusercontent.com',
+          // serverClientId is only supported on mobile platforms (Android/iOS)
+          // For web development, we use null to avoid assertion errors
+          serverClientId: kIsWeb 
+              ? null 
+              : '786526489558-t0n9bh82ssirkasteo47c1sipfvdqbo1.apps.googleusercontent.com',
         );
         final GoogleSignInAccount? account = await googleSignIn.signIn();
 
