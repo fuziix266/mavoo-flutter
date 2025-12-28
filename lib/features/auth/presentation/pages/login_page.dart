@@ -391,13 +391,22 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> _handleGoogleSignIn() async {
       try {
+        // IMPORTANT: Platform-conditional Google Sign-In configuration
+        // Modified on: 2025-12-28 by Antigravity AI
+        // 
+        // TROUBLESHOOTING:
+        // - If Google Sign-In fails on MOBILE (Android/iOS): Check that serverClientId is correct
+        // - If Google Sign-In fails on WEB: Check that kIsWeb is properly detecting the platform
+        // - The serverClientId below is for Android/iOS ONLY (not supported on web)
+        // 
+        // PLATFORM BEHAVIOR:
+        // - Web (Chrome/Firefox): serverClientId = null (basic OAuth flow)
+        // - Mobile (Android/iOS): serverClientId = '786526...' (full server-side auth)
         final GoogleSignIn googleSignIn = GoogleSignIn(
           scopes: ['email', 'profile'],
-          // serverClientId is only supported on mobile platforms (Android/iOS)
-          // For web development, we use null to avoid assertion errors
           serverClientId: kIsWeb 
-              ? null 
-              : '786526489558-t0n9bh82ssirkasteo47c1sipfvdqbo1.apps.googleusercontent.com',
+              ? null  // Web: null to avoid "serverClientId is not supported on Web" error
+              : '786526489558-t0n9bh82ssirkasteo47c1sipfvdqbo1.apps.googleusercontent.com',  // Mobile only
         );
         final GoogleSignInAccount? account = await googleSignIn.signIn();
 
