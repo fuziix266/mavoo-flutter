@@ -5,20 +5,35 @@ class NotificationsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: const Text('Notificaciones'),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        surfaceTintColor: Colors.transparent,
-      ),
-      body: ListView.separated(
-        itemCount: 15,
-        separatorBuilder: (context, index) => const Divider(height: 1),
-        itemBuilder: (context, index) {
-          final isNew = index < 3;
-          return Container(
+    return Container(
+      color: Colors.white,
+      child: Column(
+        children: [
+          // Custom App Bar
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              border: Border(
+                bottom: BorderSide(color: Colors.grey.shade200),
+              ),
+            ),
+            child: Row(
+              children: [
+                const Text(
+                  'Notificaciones',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+          ),
+
+          Expanded(
+            child: ListView.separated(
+              itemCount: 15,
+              separatorBuilder: (context, index) => const Divider(height: 1),
+              itemBuilder: (context, index) {
+                final isNew = index < 3;
+                return Container(
             color: isNew ? Colors.blue.withOpacity(0.05) : Colors.white,
             child: ListTile(
               leading: CircleAvatar(
@@ -65,6 +80,9 @@ class NotificationsPage extends StatelessWidget {
             ),
           );
         },
+      ),
+          ),
+        ],
       ),
     );
   }

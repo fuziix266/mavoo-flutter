@@ -5,22 +5,33 @@ class MessagesPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: const Text('Mensajes'),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        surfaceTintColor: Colors.transparent,
-        actions: [
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.edit_square),
-          ),
-        ],
-      ),
-      body: Column(
+    return Container(
+      color: Colors.white,
+      child: Column(
         children: [
+          // Custom App Bar
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              border: Border(
+                bottom: BorderSide(color: Colors.grey.shade200),
+              ),
+            ),
+            child: Row(
+              children: [
+                const Text(
+                  'Mensajes',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                const Spacer(),
+                IconButton(
+                  onPressed: () {},
+                  icon: const Icon(Icons.edit_square),
+                ),
+              ],
+            ),
+          ),
+
           // Search bar
           Padding(
             padding: const EdgeInsets.all(16.0),
@@ -43,6 +54,7 @@ class MessagesPage extends StatelessWidget {
           SizedBox(
             height: 100,
             child: ListView.builder(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               scrollDirection: Axis.horizontal,
               itemCount: 10,
               padding: const EdgeInsets.symmetric(horizontal: 16),
