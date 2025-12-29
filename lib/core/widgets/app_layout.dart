@@ -130,30 +130,53 @@ class _AppLayoutState extends State<AppLayout> {
                         children: [
                           // Center feed content with its own scroll
                           Expanded(
-                            child: SingleChildScrollView(
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  border: showRightSidebar
-                                      ? Border(
-                                          right: BorderSide(
-                                            color: AppColors.borderLight,
-                                            width: 1,
-                                          ),
-                                        )
-                                      : null,
-                                ),
-                                child: Center(
-                                  child: ConstrainedBox(
-                                    constraints: BoxConstraints(
-                                      maxWidth: isMobile 
-                                          ? double.infinity 
-                                          : ResponsiveBreakpoints.maxFeedWidth,
+                            child: location == '/reels'
+                              ? Container(
+                                  decoration: BoxDecoration(
+                                    border: showRightSidebar
+                                        ? Border(
+                                            right: BorderSide(
+                                              color: AppColors.borderLight,
+                                              width: 1,
+                                            ),
+                                          )
+                                        : null,
+                                  ),
+                                  child: Center(
+                                    child: ConstrainedBox(
+                                      constraints: BoxConstraints(
+                                        maxWidth: isMobile
+                                            ? double.infinity
+                                            : ResponsiveBreakpoints.maxFeedWidth,
+                                      ),
+                                      child: _getMainContent(),
                                     ),
-                                    child: _getMainContent(),
+                                  ),
+                                )
+                              : SingleChildScrollView(
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      border: showRightSidebar
+                                          ? Border(
+                                              right: BorderSide(
+                                                color: AppColors.borderLight,
+                                                width: 1,
+                                              ),
+                                            )
+                                          : null,
+                                    ),
+                                    child: Center(
+                                      child: ConstrainedBox(
+                                        constraints: BoxConstraints(
+                                          maxWidth: isMobile
+                                              ? double.infinity
+                                              : ResponsiveBreakpoints.maxFeedWidth,
+                                        ),
+                                        child: _getMainContent(),
+                                      ),
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ),
                           ),
                           
                           // Right Sidebar (only on desktop for home/events) - independent, no scroll for now

@@ -12,9 +12,9 @@ class _ReelsPageState extends State<ReelsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: PageView.builder(
+    return Container(
+      color: Colors.black,
+      child: PageView.builder(
         controller: _pageController,
         scrollDirection: Axis.vertical,
         itemCount: 10,
@@ -36,14 +36,12 @@ class _ReelItem extends StatelessWidget {
     return Stack(
       children: [
         // Video Placeholder
-        Container(
-          color: Colors.grey.shade900,
-          child: Center(
+        Positioned.fill(
+          child: Container(
+            color: Colors.grey.shade900,
             child: Image.network(
               'https://picsum.photos/seed/${index + 500}/600/1000',
               fit: BoxFit.cover,
-              width: double.infinity,
-              height: double.infinity,
               loadingBuilder: (context, child, loadingProgress) {
                 if (loadingProgress == null) return child;
                 return const Center(
@@ -79,6 +77,7 @@ class _ReelItem extends StatelessWidget {
           bottom: 32,
           right: 80, // Space for right actions
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
@@ -134,6 +133,7 @@ class _ReelItem extends StatelessWidget {
           right: 16,
           bottom: 32,
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
               _ActionButton(icon: Icons.favorite, label: '${(index + 1) * 120}'),
               const SizedBox(height: 16),
