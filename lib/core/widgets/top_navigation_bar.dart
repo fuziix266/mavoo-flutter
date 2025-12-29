@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../theme/app_theme.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
+import 'overlays/notifications_overlay.dart';
+import 'overlays/chat_overlay.dart';
 
 class TopNavigationBar extends StatelessWidget {
   final int currentIndex;
@@ -14,8 +16,46 @@ class TopNavigationBar extends StatelessWidget {
     required this.onNavigationChanged,
   }) : super(key: key);
 
+  void _showNotificationsOverlay(BuildContext context, GlobalKey buttonKey) {
+    final RenderBox renderBox = buttonKey.currentContext!.findRenderObject() as RenderBox;
+    final offset = renderBox.localToGlobal(Offset.zero);
+
+    showDialog(
+      context: context,
+      barrierColor: Colors.transparent,
+      builder: (context) => Stack(
+        children: [
+          Positioned(
+            top: offset.dy + renderBox.size.height + 8,
+            right: MediaQuery.of(context).size.width - (offset.dx + renderBox.size.width) - 10,
+            child: const NotificationsOverlay(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showChatOverlay(BuildContext context) {
+    // Show chat as a floating bottom-right window or similar
+    // For now, let's use a Dialog positioned at bottom right
+    showDialog(
+      context: context,
+      barrierColor: Colors.transparent,
+      builder: (context) => Stack(
+        children: [
+          Positioned(
+            bottom: 0,
+            right: 80,
+            child: const ChatOverlay(),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final GlobalKey notificationKey = GlobalKey();
     return Container(
       height: 64,
       decoration: BoxDecoration(
@@ -127,14 +167,15 @@ class TopNavigationBar extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   IconButton(
+                    key: notificationKey,
                     icon: const Icon(Icons.notifications_outlined),
-                    onPressed: () {},
+                    onPressed: () => _showNotificationsOverlay(context, notificationKey),
                     color: AppColors.textSecondary,
                   ),
                   const SizedBox(width: 8),
                   IconButton(
                     icon: const Icon(Icons.chat_bubble_outline),
-                    onPressed: () {},
+                    onPressed: () => _showChatOverlay(context),
                     color: AppColors.textSecondary,
                   ),
                   const SizedBox(width: 16),
