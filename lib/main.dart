@@ -19,6 +19,8 @@ import 'features/notifications/presentation/pages/notifications_page.dart';
 import 'features/messages/presentation/pages/messages_page.dart';
 import 'features/reels/presentation/pages/reels_page.dart';
 import 'features/posts/presentation/pages/add_post_page.dart';
+import 'features/activity/presentation/pages/my_activity_page.dart';
+import 'features/profile/presentation/pages/edit_profile_page.dart';
 import 'injection_container.dart' as di;
 
 void main() async {
@@ -119,6 +121,10 @@ GoRouter _createRouter(BuildContext context) {
             builder: (context, state) => const AddPostPage(),
           ),
           GoRoute(
+            path: '/my-activity',
+            builder: (context, state) => const MyActivityPage(),
+          ),
+          GoRoute(
             path: '/notifications',
             builder: (context, state) => const NotificationsPage(),
           ),
@@ -155,6 +161,10 @@ GoRouter _createRouter(BuildContext context) {
           GoRoute(
             path: '/profile',
             builder: (context, state) => const ProfilePage(),
+          ),
+          GoRoute(
+            path: '/edit-profile',
+            builder: (context, state) => const EditProfilePage(),
           ),
         ],
       ),

@@ -8,6 +8,8 @@ import 'right_sidebar.dart';
 import 'bottom_navigation.dart';
 import '../../features/home/presentation/pages/home_page.dart';
 import '../../features/events/presentation/pages/events_page.dart';
+import '../../features/stats/presentation/pages/friends_stats_page.dart';
+import '../../features/stats/presentation/pages/personal_stats_page.dart';
 
 class AppLayout extends StatefulWidget {
   final Widget? child;
@@ -54,6 +56,10 @@ class _AppLayoutState extends State<AppLayout> {
         return const HomePage();
       case 1:
         return const EventsPage();
+      case 2:
+        return const FriendsStatsPage();
+      case 3:
+        return const PersonalStatsPage();
       default:
         return const HomePage();
     }
@@ -70,9 +76,20 @@ class _AppLayoutState extends State<AppLayout> {
     final location = widget.child != null ? GoRouterState.of(context).matchedLocation : '/home';
     final isSpecialPage = location != '/home' && widget.child != null;
     
-    final showRightSidebar = ResponsiveBreakpoints.showRightSidebar(screenWidth) && 
-                             (_currentIndex == 0 || _currentIndex == 1) &&
-                             !isSpecialPage;
+    // We want right sidebar to show on Home, Events, FriendsStats, PersonalStats (internal pages)
+    // AND ALSO when we are in a "special page" but it fits the layout (user requested to fix "white screen").
+    // However, usually special pages like Messages take full width.
+    // The user said "se pierde el widget derecho" for Notifications/Messages.
+    // Maybe they want the RightSidebar there too?
+    // Let's enable it for Notifications, but maybe not Messages if it needs full width?
+    // For now, I will modify it to show unless explicitly full screen.
+    // Actually, simply removing !isSpecialPage might fix the "disappearing" issue if that's what they mean.
+    // But NotificationsPage might look weird if constrained?
+    // Let's keep it safe: Always show LeftSidebar (already done above).
+    // Show RightSidebar if desktop, regardless of page, UNLESS it's a page that specifically hides it?
+    // The user complaint "se pierde el widget derecho" implies they EXPECT it.
+
+    final showRightSidebar = ResponsiveBreakpoints.showRightSidebar(screenWidth);
     final expandLeftSidebar = ResponsiveBreakpoints.expandLeftSidebar(screenWidth);
     final showBottomNav = ResponsiveBreakpoints.showBottomNav(screenWidth);
 

@@ -59,7 +59,9 @@ class LeftSidebar extends StatelessWidget {
                   icon: Icons.sports_soccer,
                   label: 'Mi Actividad',
                   isActive: false,
-                  onTap: () {},
+                  onTap: () {
+                    GoRouter.of(context).go('/my-activity');
+                  },
                   showLabel: expanded,
                 ),
                 const SizedBox(height: 8),
