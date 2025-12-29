@@ -63,14 +63,17 @@ class BottomNavigation extends StatelessWidget {
                 label: 'Post',
                 isActive: false,
                 onTap: () {
-                  // TODO: Open create post dialog
+                  context.push('/add-post');
                 },
               ),
               _NavItem(
                 icon: Icons.person,
                 label: 'Profile',
                 isActive: currentIndex == 3,
-                onTap: () => onNavigationChanged(3),
+                onTap: () {
+                   context.go('/profile');
+                   onNavigationChanged(3);
+                },
               ),
             ],
           ),

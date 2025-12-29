@@ -17,6 +17,8 @@ import 'features/strava/presentation/pages/strava_callback_page.dart';
 import 'features/profile/presentation/pages/profile_page.dart';
 import 'features/notifications/presentation/pages/notifications_page.dart';
 import 'features/messages/presentation/pages/messages_page.dart';
+import 'features/reels/presentation/pages/reels_page.dart';
+import 'features/posts/presentation/pages/add_post_page.dart';
 import 'injection_container.dart' as di;
 
 void main() async {
@@ -114,7 +116,7 @@ GoRouter _createRouter(BuildContext context) {
           ),
           GoRoute(
             path: '/add-post',
-            builder: (context, state) => const PlaceholderPage(title: 'Add Post'),
+            builder: (context, state) => const AddPostPage(),
           ),
           GoRoute(
             path: '/notifications',
@@ -126,7 +128,7 @@ GoRouter _createRouter(BuildContext context) {
           ),
           GoRoute(
             path: '/reels',
-            builder: (context, state) => const PlaceholderPage(title: 'Reels'),
+            builder: (context, state) => const ReelsPage(),
           ),
           GoRoute(
             path: '/devices',
