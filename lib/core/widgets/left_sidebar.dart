@@ -79,7 +79,9 @@ class LeftSidebar extends StatelessWidget {
                   label: 'Notifications',
                   isActive: false,
                   badge: '3',
-                  onTap: () {},
+                  onTap: () {
+                    GoRouter.of(context).go('/notifications');
+                  },
                   showLabel: expanded,
                 ),
                 const SizedBox(height: 8),
@@ -88,7 +90,9 @@ class LeftSidebar extends StatelessWidget {
                   label: 'Messages',
                   isActive: false,
                   badge: '5',
-                  onTap: () {},
+                  onTap: () {
+                    GoRouter.of(context).go('/messages');
+                  },
                   showLabel: expanded,
                 ),
                 const SizedBox(height: 8),
@@ -96,7 +100,9 @@ class LeftSidebar extends StatelessWidget {
                   icon: Icons.video_library,
                   label: 'Reels',
                   isActive: false,
-                  onTap: () {},
+                  onTap: () {
+                    GoRouter.of(context).go('/reels');
+                  },
                   showLabel: expanded,
                 ),
                 const SizedBox(height: 8),
@@ -104,7 +110,9 @@ class LeftSidebar extends StatelessWidget {
                   icon: Icons.add_box,
                   label: 'Add Post',
                   isActive: false,
-                  onTap: () {},
+                  onTap: () {
+                    GoRouter.of(context).push('/add-post');
+                  },
                   showLabel: expanded,
                 ),
               ],
@@ -133,7 +141,9 @@ class LeftSidebar extends StatelessWidget {
                   ),
                 ),
                 child: InkWell(
-                  onTap: () {},
+                  onTap: () {
+                    GoRouter.of(context).go('/profile');
+                  },
                   borderRadius: BorderRadius.circular(8),
                   child: Row(
                     children: [

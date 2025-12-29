@@ -40,8 +40,36 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _loadStories() async {
     // TODO: Implement story loading from API when fixed
+    // Mocking stories for now
     setState(() {
-      userStories = [];
+      userStories = [
+        UserStories(
+          userId: 2,
+          hasUnviewed: true,
+          stories: [
+            Story(
+              storyId: 1,
+              userId: 2,
+              url: 'https://picsum.photos/300/500',
+              type: 'image',
+              createdAt: DateTime.now(),
+            )
+          ],
+        ),
+        UserStories(
+          userId: 3,
+          hasUnviewed: false,
+          stories: [
+            Story(
+              storyId: 2,
+              userId: 3,
+              url: 'https://picsum.photos/301/501',
+              type: 'image',
+              createdAt: DateTime.now().subtract(const Duration(hours: 1)),
+            )
+          ],
+        ),
+      ];
     });
   }
 
@@ -49,13 +77,68 @@ class _HomePageState extends State<HomePage> {
     try {
       final loadedPosts = await postRepository.getFeed();
       setState(() {
-        posts = loadedPosts;
+        posts = loadedPosts.isNotEmpty ? loadedPosts : _getMockPosts();
         isLoadingPosts = false;
       });
     } catch (e) {
       print('Error loading posts: $e');
-      setState(() => isLoadingPosts = false);
+      setState(() {
+        posts = _getMockPosts();
+        isLoadingPosts = false;
+      });
     }
+  }
+
+  List<Post> _getMockPosts() {
+    return [
+      Post(
+        id: 1,
+        userId: 2,
+        username: 'juanperez',
+        userFirstName: 'Juan',
+        userLastName: 'Perez',
+        userProfilePic: 'https://randomuser.me/api/portraits/men/1.jpg',
+        text: 'Gran entrenamiento de hoy! 10km en 45 minutos. #running #mavoo',
+        location: 'Parque Central',
+        postType: 'image',
+        createdAt: DateTime.now().subtract(const Duration(minutes: 30)),
+        isLiked: true,
+        likeCount: 24,
+        commentCount: 5,
+        images: ['https://picsum.photos/seed/post1/600/400'],
+      ),
+      Post(
+        id: 2,
+        userId: 3,
+        username: 'mariagarcia',
+        userFirstName: 'Maria',
+        userLastName: 'Garcia',
+        userProfilePic: 'https://randomuser.me/api/portraits/women/2.jpg',
+        text: 'Preparándome para la maratón del próximo mes. ¿Alguien más va?',
+        location: 'Estadio Olímpico',
+        postType: 'text',
+        createdAt: DateTime.now().subtract(const Duration(hours: 2)),
+        isLiked: false,
+        likeCount: 15,
+        commentCount: 2,
+      ),
+      Post(
+        id: 3,
+        userId: 4,
+        username: 'carlosrodriguez',
+        userFirstName: 'Carlos',
+        userLastName: 'Rodriguez',
+        userProfilePic: 'https://randomuser.me/api/portraits/men/3.jpg',
+        text: 'Increíble vista desde la cima de la montaña. Valió la pena el esfuerzo.',
+        location: 'Montaña Alta',
+        postType: 'image',
+        createdAt: DateTime.now().subtract(const Duration(hours: 5)),
+        isLiked: true,
+        likeCount: 156,
+        commentCount: 12,
+        images: ['https://picsum.photos/seed/post3/600/600'],
+      ),
+    ];
   }
 
   @override
