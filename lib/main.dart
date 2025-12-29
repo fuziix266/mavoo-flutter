@@ -14,6 +14,9 @@ import 'features/events/data/models/event_model.dart';
 import 'features/search/presentation/pages/search_page.dart';
 import 'features/strava/presentation/pages/devices_page.dart';
 import 'features/strava/presentation/pages/strava_callback_page.dart';
+import 'features/profile/presentation/pages/profile_page.dart';
+import 'features/notifications/presentation/pages/notifications_page.dart';
+import 'features/messages/presentation/pages/messages_page.dart';
 import 'injection_container.dart' as di;
 
 void main() async {
@@ -115,11 +118,11 @@ GoRouter _createRouter(BuildContext context) {
           ),
           GoRoute(
             path: '/notifications',
-            builder: (context, state) => const PlaceholderPage(title: 'Notifications'),
+            builder: (context, state) => const NotificationsPage(),
           ),
           GoRoute(
             path: '/messages',
-            builder: (context, state) => const PlaceholderPage(title: 'Messages'),
+            builder: (context, state) => const MessagesPage(),
           ),
           GoRoute(
             path: '/reels',
@@ -149,7 +152,7 @@ GoRouter _createRouter(BuildContext context) {
           ),
           GoRoute(
             path: '/profile',
-            builder: (context, state) => const PlaceholderPage(title: 'Profile'),
+            builder: (context, state) => const ProfilePage(),
           ),
         ],
       ),
