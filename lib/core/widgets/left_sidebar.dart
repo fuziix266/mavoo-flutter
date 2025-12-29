@@ -66,6 +66,16 @@ class LeftSidebar extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 _NavItem(
+                  icon: Icons.widgets,
+                  label: 'Widgets',
+                  isActive: false,
+                  onTap: () {
+                    GoRouter.of(context).go('/widgets');
+                  },
+                  showLabel: expanded,
+                ),
+                const SizedBox(height: 8),
+                _NavItem(
                   icon: Icons.watch,
                   label: 'Mis dispositivos',
                   isActive: false,

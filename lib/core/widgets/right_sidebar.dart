@@ -1,143 +1,98 @@
 import 'package:flutter/material.dart';
-import '../theme/app_theme.dart';
+import '../../features/widgets/data/mock_widget_service.dart';
+import '../../features/widgets/presentation/widgets/sports_widgets.dart';
 
-class RightSidebar extends StatelessWidget {
+class RightSidebar extends StatefulWidget {
   const RightSidebar({Key? key}) : super(key: key);
+
+  @override
+  State<RightSidebar> createState() => _RightSidebarState();
+}
+
+class _RightSidebarState extends State<RightSidebar> {
+  final MockWidgetService _service = MockWidgetService();
+  bool _isEditing = false;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: 320,
       padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Weekly Goal Widget
-          _WeeklyGoalWidget(),
-          const SizedBox(height: 24),
-          
-          // Who to Follow
-          _WhoToFollowWidget(),
-        ],
+      child: AnimatedBuilder(
+        animation: _service,
+        builder: (context, child) {
+          final visibleWidgets = _service.visibleWidgets;
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Edit Header
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton.icon(
+                    onPressed: () {
+                      setState(() {
+                        _isEditing = !_isEditing;
+                      });
+                    },
+                    icon: Icon(_isEditing ? Icons.check : Icons.edit, size: 16),
+                    label: Text(_isEditing ? 'Done' : 'Edit Widgets'),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+
+              if (_isEditing)
+                // Drag and Drop List
+                SizedBox(
+                  height: 600, // Fixed height for reorder list
+                  child: ReorderableListView(
+                    onReorder: (oldIndex, newIndex) {
+                       _service.reorderWidgets(oldIndex, newIndex);
+                    },
+                    children: visibleWidgets.map((item) {
+                      return Container(
+                        key: ValueKey(item.id),
+                        margin: const EdgeInsets.only(bottom: 16),
+                        child: WidgetCard(
+                          title: item.title,
+                          child: _buildWidgetContent(item.type),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                )
+              else
+                // Normal Display
+                Column(
+                  children: visibleWidgets.map((item) {
+                    return WidgetCard(
+                      title: item.title,
+                      child: _buildWidgetContent(item.type),
+                    );
+                  }).toList(),
+                ),
+
+              const SizedBox(height: 24),
+
+              // Always show Who to Follow if desired, or make it a widget too
+              _WhoToFollowWidget(),
+            ],
+          );
+        },
       ),
     );
   }
-}
 
-class _WeeklyGoalWidget extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceLight,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.borderLight),
-        boxShadow: AppShadows.small,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'Weekly Goal',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary,
-                ),
-              ),
-              TextButton(
-                onPressed: () {},
-                style: TextButton.styleFrom(
-                  padding: EdgeInsets.zero,
-                  minimumSize: Size.zero,
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                ),
-                child: const Text(
-                  'Edit',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.primary,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              // Circular Progress
-              SizedBox(
-                width: 64,
-                height: 64,
-                child: Stack(
-                  children: [
-                    CircularProgressIndicator(
-                      value: 0.7,
-                      strokeWidth: 6,
-                      backgroundColor: AppColors.borderLight,
-                      valueColor: const AlwaysStoppedAnimation<Color>(
-                        AppColors.primary,
-                      ),
-                    ),
-                    const Center(
-                      child: Text(
-                        '70%',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    RichText(
-                      text: const TextSpan(
-                        text: '35 ',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.textPrimary,
-                        ),
-                        children: [
-                          TextSpan(
-                            text: '/ 50 km',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w400,
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    const Text(
-                      '15km left to reach your goal!',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
+  Widget _buildWidgetContent(String type) {
+    switch (type) {
+      case 'goal': return const GoalWidget();
+      case 'calories': return const CaloriesWidget();
+      case 'events': return const EventsWidget();
+      case 'ranking': return const RankingWidget();
+      default: return const SizedBox();
+    }
   }
 }
 

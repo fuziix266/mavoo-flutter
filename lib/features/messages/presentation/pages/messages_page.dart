@@ -57,7 +57,6 @@ class MessagesPage extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               scrollDirection: Axis.horizontal,
               itemCount: 10,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
               itemBuilder: (context, index) {
                 return Padding(
                   padding: const EdgeInsets.only(right: 16),
