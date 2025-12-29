@@ -74,6 +74,21 @@ class _AppLayoutState extends State<AppLayout> {
     
     // Determine if we're showing a special page (not Home/Events)
     final location = widget.child != null ? GoRouterState.of(context).matchedLocation : '/home';
+
+    // Pages that have their own Scaffold and should be rendered directly without AppLayout wrapper
+    final pagesWithOwnScaffold = [
+      '/search',
+      '/settings',
+      '/add-post',
+      '/edit-profile',
+      '/events/all',
+      '/profile',
+    ];
+    // If this page has its own Scaffold, render it directly
+    if (pagesWithOwnScaffold.any((page) => location.startsWith(page))) {
+      return widget.child ?? const HomePage();
+    }
+
     final isSpecialPage = location != '/home' && widget.child != null;
     
     // We want right sidebar to show on Home, Events, FriendsStats, PersonalStats (internal pages)
