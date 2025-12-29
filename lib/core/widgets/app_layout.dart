@@ -145,7 +145,7 @@ class _AppLayoutState extends State<AppLayout> {
                         children: [
                           // Center feed content with its own scroll
                           Expanded(
-                            child: location == '/reels'
+                            child: ['/reels', '/events/all', '/messages', '/notifications', '/widgets', '/my-activity', '/devices'].any((p) => location.startsWith(p))
                               ? Container(
                                   decoration: BoxDecoration(
                                     border: showRightSidebar

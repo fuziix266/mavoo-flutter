@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/app_theme.dart';
 import '../../features/widgets/data/mock_widget_service.dart';
 import '../../features/widgets/presentation/widgets/sports_widgets.dart';
 
@@ -18,8 +19,8 @@ class _RightSidebarState extends State<RightSidebar> {
     return Container(
       width: 320,
       padding: const EdgeInsets.all(24),
-      child: AnimatedBuilder(
-        animation: _service,
+      child: ListenableBuilder( // Changed from AnimatedBuilder to ListenableBuilder for clarity
+        listenable: _service,
         builder: (context, child) {
           final visibleWidgets = _service.visibleWidgets;
 
@@ -49,6 +50,8 @@ class _RightSidebarState extends State<RightSidebar> {
                   height: 600, // Fixed height for reorder list
                   child: ReorderableListView(
                     onReorder: (oldIndex, newIndex) {
+                       // We need to wrap this in a microtask or ensure it doesn't trigger a build 
+                       // while the widget tree is locked. The service notification likely causes an immediate rebuild.
                        _service.reorderWidgets(oldIndex, newIndex);
                     },
                     children: visibleWidgets.map((item) {
