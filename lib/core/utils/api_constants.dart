@@ -7,7 +7,7 @@ class ApiConstants {
   // URL de producción - usar IP del servidor
   static const String _prodUrl = String.fromEnvironment(
     'API_URL', 
-    defaultValue: 'http://62.146.181.70'
+    defaultValue: 'https://retrobox.cl/api'
   );
 
   // Selecciona automáticamente la URL según la plataforma

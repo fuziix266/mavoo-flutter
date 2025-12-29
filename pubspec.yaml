@@ -50,6 +50,7 @@ dependencies:
   dartz: ^0.10.1
   google_sign_in: ^6.1.6
   url_launcher: ^6.3.2
+  flutter_web_auth_2: ^4.1.0
 
 dev_dependencies:
   flutter_test:

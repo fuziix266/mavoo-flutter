@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import '../models/strava_athlete_model.dart';
 import '../models/strava_activity_model.dart';
@@ -75,11 +76,14 @@ class StravaRepository {
             'last_sync': data['last_sync'] as String?,
           };
         }
+      } else {
+        debugPrint('Error status code: ${response.statusCode}');
+        debugPrint('Response body: ${response.body}');
       }
-
+      
       return {'connected': false, 'athlete': null};
     } catch (e) {
-      print('Error getting athlete: $e');
+      debugPrint('Error getting athlete: $e');
       return {'connected': false, 'athlete': null};
     }
   }

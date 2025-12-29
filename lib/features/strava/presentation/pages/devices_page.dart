@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_web_auth_2/flutter_web_auth_2.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/utils/api_constants.dart';
 import '../../data/models/strava_athlete_model.dart';
 import '../../data/models/strava_activity_model.dart';
 import '../../data/repositories/strava_repository.dart';
@@ -24,7 +25,7 @@ class _DevicesPageState extends State<DevicesPage> {
   @override
   void initState() {
     super.initState();
-    _stravaRepository = StravaRepository(baseUrl: 'http://localhost:8000');
+    _stravaRepository = StravaRepository(baseUrl: ApiConstants.baseUrl);
     _loadConnectionStatus();
   }
 
@@ -72,18 +73,38 @@ class _DevicesPageState extends State<DevicesPage> {
       final authUrl = await _stravaRepository.getAuthorizationUrl(_userId);
       
       if (authUrl != null) {
-        final uri = Uri.parse(authUrl);
-        if (await canLaunchUrl(uri)) {
-          await launchUrl(uri);
-          _showInfo('Completa la autorización en el navegador. Luego vuelve y presiona "Verificar conexión".');
+        // Use FlutterWebAuth2 for in-app browser (Custom Tabs/Safari View Controller)
+        final result = await FlutterWebAuth2.authenticate(
+          url: authUrl,
+          callbackUrlScheme: 'mavoo',
+        );
+        
+        // Extract code from callback URL
+        final uri = Uri.parse(result);
+        final code = uri.queryParameters['code'];
+        
+        if (code != null) {
+          // Exchange code for tokens
+          final athlete = await _stravaRepository.exchangeCode(code, _userId);
+          
+          if (athlete != null) {
+            _showSuccess('¡Strava conectado exitosamente!');
+            await _loadConnectionStatus();
+          } else {
+            _showError('Error al intercambiar código de autorización');
+          }
         } else {
-          _showError('No se pudo abrir la URL de autorización');
+          _showError('No se recibió código de autorización');
         }
       } else {
         _showError('Error al obtener URL de autorización');
       }
     } catch (e) {
-      _showError('Error: $e');
+      if (e.toString().contains('CANCELED')) {
+        _showInfo('Autorización cancelada');
+      } else {
+        _showError('Error: $e');
+      }
     }
     
     setState(() => _isLoading = false);

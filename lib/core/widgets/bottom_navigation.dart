@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../theme/app_theme.dart';
 
 class BottomNavigation extends StatelessWidget {
@@ -50,9 +51,12 @@ class BottomNavigation extends StatelessWidget {
               ),
               _NavItem(
                 icon: Icons.explore,
-                label: 'Explore',
+                label: 'Strava',
                 isActive: currentIndex == 2,
-                onTap: () => onNavigationChanged(2),
+                onTap: () {
+                  context.go('/explore');
+                  onNavigationChanged(2);
+                },
               ),
               _NavItem(
                 icon: Icons.add_box_outlined,

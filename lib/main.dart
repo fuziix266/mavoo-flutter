@@ -107,7 +107,7 @@ GoRouter _createRouter(BuildContext context) {
           ),
           GoRoute(
             path: '/explore',
-            builder: (context, state) => const PlaceholderPage(title: 'Explore'),
+            builder: (context, state) => const DevicesPage(),
           ),
           GoRoute(
             path: '/add-post',
