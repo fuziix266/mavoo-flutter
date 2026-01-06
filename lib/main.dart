@@ -15,6 +15,7 @@ import 'features/search/presentation/pages/search_page.dart';
 import 'features/strava/presentation/pages/devices_page.dart';
 import 'features/strava/presentation/pages/strava_callback_page.dart';
 import 'features/profile/presentation/pages/profile_page.dart';
+import 'features/auth/domain/entities/user.dart';
 import 'features/notifications/presentation/pages/notifications_page.dart';
 import 'features/messages/presentation/pages/messages_page.dart';
 import 'features/reels/presentation/pages/reels_page.dart';
@@ -162,6 +163,14 @@ GoRouter _createRouter(BuildContext context) {
           GoRoute(
             path: '/profile',
             builder: (context, state) => const ProfilePage(),
+          ),
+          GoRoute(
+            path: '/profile/:id',
+            builder: (context, state) {
+              final userId = state.pathParameters['id'];
+              final user = state.extra is User ? state.extra as User : null;
+              return ProfilePage(user: user, userId: userId);
+            },
           ),
           GoRoute(
             path: '/edit-profile',

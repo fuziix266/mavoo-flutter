@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../data/models/search_history_model.dart';
 import '../../data/models/search_results_model.dart';
@@ -245,7 +246,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
       title: Text(person.fullName ?? ''),
       subtitle: Text('@${person.username}'),
       onTap: () {
-        // TODO: Navigate to profile
+        context.push('/profile/${person.id}', extra: person);
       },
     );
   }
