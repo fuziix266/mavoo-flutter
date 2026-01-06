@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/api_client.dart';
 import '../../data/models/search_history_model.dart';
@@ -15,11 +16,12 @@ class SearchPage extends StatefulWidget {
   State<SearchPage> createState() => _SearchPageState();
 }
 
-class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateMixin {
+class _SearchPageState extends State<SearchPage>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
   late SearchRepository _searchRepository;
   late TextEditingController _searchController;
-  
+
   List<SearchHistory> _recentSearches = [];
   SearchResults? _searchResults;
   bool _isLoading = false;
@@ -33,7 +35,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
     _searchController = TextEditingController();
     _searchRepository = SearchRepository(apiClient: ApiClient());
     _loadRecentSearches();
-    
+
     _searchController.addListener(_onSearchChanged);
   }
 
@@ -134,7 +136,8 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
                 fontSize: 14,
               ),
               border: InputBorder.none,
-              prefixIcon: Icon(Icons.search, color: AppColors.textSecondary, size: 20),
+              prefixIcon:
+                  Icon(Icons.search, color: AppColors.textSecondary, size: 20),
               isDense: true,
               contentPadding: EdgeInsets.symmetric(vertical: 12),
             ),
@@ -158,9 +161,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
           ],
         ),
       ),
-      body: _showResults
-          ? _buildSearchResults()
-          : _buildRecentSearches(),
+      body: _showResults ? _buildSearchResults() : _buildRecentSearches(),
     );
   }
 
@@ -174,7 +175,8 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline, size: 64, color: Colors.red.withOpacity(0.5)),
+            Icon(Icons.error_outline,
+                size: 64, color: Colors.red.withOpacity(0.5)),
             const SizedBox(height: 16),
             const Text(
               'Ocurrió un error al buscar.',
@@ -194,7 +196,8 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.search_off, size: 64, color: AppColors.textSecondary.withOpacity(0.5)),
+            Icon(Icons.search_off,
+                size: 64, color: AppColors.textSecondary.withOpacity(0.5)),
             const SizedBox(height: 16),
             const Text(
               'No encontramos deportistas ni eventos.',
@@ -303,7 +306,8 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
     return ListView.builder(
       padding: const EdgeInsets.all(16),
       itemCount: _searchResults!.people.length,
-      itemBuilder: (context, index) => _buildPersonItem(_searchResults!.people[index]),
+      itemBuilder: (context, index) =>
+          _buildPersonItem(_searchResults!.people[index]),
     );
   }
 
@@ -315,7 +319,8 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
     return ListView.builder(
       padding: const EdgeInsets.all(16),
       itemCount: _searchResults!.events.length,
-      itemBuilder: (context, index) => _buildEventItem(_searchResults!.events[index]),
+      itemBuilder: (context, index) =>
+          _buildEventItem(_searchResults!.events[index]),
     );
   }
 
@@ -325,9 +330,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
         backgroundImage: person.profileImage != null
             ? NetworkImage(person.profileImage!)
             : null,
-        child: person.profileImage == null
-            ? const Icon(Icons.person)
-            : null,
+        child: person.profileImage == null ? const Icon(Icons.person) : null,
       ),
       title: Text(person.fullName ?? ''),
       subtitle: Text('@${person.username}'),
@@ -342,12 +345,13 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
       margin: const EdgeInsets.only(bottom: 12),
       child: ListTile(
         leading: event.imageUrl != null
-            ? Image.network(event.imageUrl!, width: 60, height: 60, fit: BoxFit.cover)
+            ? Image.network(event.imageUrl!,
+                width: 60, height: 60, fit: BoxFit.cover)
             : const Icon(Icons.event, size: 40),
         title: Text(event.name),
         subtitle: Text(event.location ?? ''),
         onTap: () {
-          // TODO: Navigate to event details
+          context.push('/events/${event.id}', extra: event);
         },
       ),
     );
