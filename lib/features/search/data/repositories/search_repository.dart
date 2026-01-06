@@ -2,20 +2,31 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/search_history_model.dart';
 import '../models/search_results_model.dart';
+import '../../../auth/data/datasources/auth_local_data_source.dart';
 
 class SearchRepository {
   final String baseUrl;
+  final AuthLocalDataSource authLocalDataSource;
 
-  SearchRepository({required this.baseUrl});
+  SearchRepository({
+    required this.baseUrl,
+    required this.authLocalDataSource,
+  });
+
+  Future<String> _getUserId() async {
+    final user = await authLocalDataSource.getLastUser();
+    return user?.id.toString() ?? '0';
+  }
 
   /// Unified search across multiple types
   Future<SearchResults> search(String query, SearchType type) async {
     try {
+      final userId = await _getUserId();
       final response = await http.post(
         Uri.parse('$baseUrl/content/search/query'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
-          'user_id': 1, // TODO: Get from auth
+          'user_id': userId,
           'query': query,
           'type': _searchTypeToString(type),
         }),
@@ -41,8 +52,9 @@ class SearchRepository {
     int limit = 10,
   }) async {
     try {
+      final userId = await _getUserId();
       final queryParams = {
-        'user_id': '1', // TODO: Get from auth
+        'user_id': userId,
         'type': type != null ? _searchTypeToString(type) : 'all',
         'limit': limit.toString(),
       };
@@ -78,11 +90,12 @@ class SearchRepository {
     int resultsCount = 0,
   }) async {
     try {
+      final userId = await _getUserId();
       await http.post(
         Uri.parse('$baseUrl/content/search/history/add'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
-          'user_id': 1, // TODO: Get from auth
+          'user_id': userId,
           'query': query,
           'type': _searchTypeToString(type),
           if (resultId != null) 'result_id': resultId,
@@ -98,8 +111,9 @@ class SearchRepository {
   /// Delete specific search history item (soft delete)
   Future<bool> deleteHistory(int historyId) async {
     try {
+      final userId = await _getUserId();
       final uri = Uri.parse('$baseUrl/content/search/history/$historyId')
-          .replace(queryParameters: {'user_id': '1'}); // TODO: Get from auth
+          .replace(queryParameters: {'user_id': userId});
 
       final response = await http.delete(uri);
 
@@ -118,8 +132,9 @@ class SearchRepository {
   /// Clear all history (soft delete)
   Future<bool> clearHistory({SearchType? type}) async {
     try {
+      final userId = await _getUserId();
       final queryParams = {
-        'user_id': '1', // TODO: Get from auth
+        'user_id': userId,
         'type': type != null ? _searchTypeToString(type) : 'all',
       };
 
