@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/api_client.dart';
 import '../../data/models/search_history_model.dart';
@@ -8,6 +9,7 @@ import '../../data/models/search_results_model.dart';
 import '../../data/repositories/search_repository.dart';
 import '../../../events/data/models/event_model.dart';
 import '../../../auth/data/models/user_model.dart';
+import '../../../auth/presentation/bloc/auth_bloc.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({Key? key}) : super(key: key);
@@ -58,14 +60,28 @@ class _SearchPageState extends State<SearchPage>
     }
   }
 
+  String? _getUserId() {
+    final authState = context.read<AuthBloc>().state;
+    if (authState is AuthAuthenticated) {
+      return authState.user.id;
+    }
+    return null;
+  }
+
   Future<void> _loadRecentSearches() async {
-    final history = await _searchRepository.getHistory(limit: 10);
+    final userId = _getUserId();
+    if (userId == null) return;
+
+    final history = await _searchRepository.getHistory(userId, limit: 10);
     setState(() {
       _recentSearches = history;
     });
   }
 
   Future<void> _performSearch() async {
+    final userId = _getUserId();
+    if (userId == null) return;
+
     final query = _searchController.text.trim();
     if (query.isEmpty) return;
 
@@ -81,10 +97,11 @@ class _SearchPageState extends State<SearchPage>
             : SearchType.events;
 
     try {
-      final results = await _searchRepository.search(query, type);
+      final results = await _searchRepository.search(userId, query, type);
 
       // Add to history
       await _searchRepository.addToHistory(
+        userId,
         query,
         type,
         resultsCount: results.people.length + results.events.length,
@@ -104,7 +121,10 @@ class _SearchPageState extends State<SearchPage>
   }
 
   Future<void> _deleteSearch(int id) async {
-    await _searchRepository.deleteHistory(id);
+    final userId = _getUserId();
+    if (userId == null) return;
+
+    await _searchRepository.deleteHistory(userId, id);
     _loadRecentSearches();
   }
 

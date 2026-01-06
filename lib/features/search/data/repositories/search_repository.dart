@@ -9,12 +9,13 @@ class SearchRepository {
   SearchRepository({required this.apiClient});
 
   /// Unified search across multiple types
-  Future<SearchResults> search(String query, SearchType type) async {
+  Future<SearchResults> search(
+      String userId, String query, SearchType type) async {
     try {
       final response = await apiClient.dio.post(
         '/content/search/query',
         data: {
-          'user_id': 1, // TODO: Get from auth
+          'user_id': userId,
           'query': query,
           'type': _searchTypeToString(type),
         },
@@ -35,7 +36,8 @@ class SearchRepository {
   }
 
   /// Get search history for user
-  Future<List<SearchHistory>> getHistory({
+  Future<List<SearchHistory>> getHistory(
+    String userId, {
     SearchType? type,
     int limit = 10,
   }) async {
@@ -43,7 +45,7 @@ class SearchRepository {
       final response = await apiClient.dio.get(
         '/content/search/history',
         queryParameters: {
-          'user_id': 1, // TODO: Get from auth
+          'user_id': userId,
           'type': type != null ? _searchTypeToString(type) : 'all',
           'limit': limit,
         },
@@ -54,7 +56,8 @@ class SearchRepository {
         if (data['response_code'] == '1') {
           final List<dynamic> historyJson = data['history'] ?? [];
           return historyJson
-              .map((item) => SearchHistory.fromJson(item as Map<String, dynamic>))
+              .map((item) =>
+                  SearchHistory.fromJson(item as Map<String, dynamic>))
               .toList();
         }
       }
@@ -68,6 +71,7 @@ class SearchRepository {
 
   /// Add search to history
   Future<void> addToHistory(
+    String userId,
     String query,
     SearchType type, {
     int? resultId,
@@ -78,11 +82,12 @@ class SearchRepository {
       await apiClient.dio.post(
         '/content/search/history/add',
         data: {
-          'user_id': 1, // TODO: Get from auth
+          'user_id': userId,
           'query': query,
           'type': _searchTypeToString(type),
           if (resultId != null) 'result_id': resultId,
-          if (resultType != null) 'result_type': _resultTypeToString(resultType),
+          if (resultType != null)
+            'result_type': _resultTypeToString(resultType),
           'results_count': resultsCount,
         },
       );
@@ -92,11 +97,11 @@ class SearchRepository {
   }
 
   /// Delete specific search history item (soft delete)
-  Future<bool> deleteHistory(int historyId) async {
+  Future<bool> deleteHistory(String userId, int historyId) async {
     try {
       final response = await apiClient.dio.delete(
         '/content/search/history/$historyId',
-        queryParameters: {'user_id': 1}, // TODO: Get from auth
+        queryParameters: {'user_id': userId},
       );
 
       if (response.statusCode == 200) {
@@ -112,12 +117,12 @@ class SearchRepository {
   }
 
   /// Clear all history (soft delete)
-  Future<bool> clearHistory({SearchType? type}) async {
+  Future<bool> clearHistory(String userId, {SearchType? type}) async {
     try {
       final response = await apiClient.dio.delete(
         '/content/search/history/clear',
         queryParameters: {
-          'user_id': 1, // TODO: Get from auth
+          'user_id': userId,
           'type': type != null ? _searchTypeToString(type) : 'all',
         },
       );
