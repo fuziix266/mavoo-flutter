@@ -1,15 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../../auth/domain/entities/user.dart';
 
 class ProfilePage extends StatelessWidget {
-  const ProfilePage({Key? key}) : super(key: key);
+  final User? user;
+  final String? userId;
+
+  const ProfilePage({
+    Key? key,
+    this.user,
+    this.userId,
+  }) : super(key: key);
+
+  bool get isMyProfile => user == null && userId == null;
 
   @override
   Widget build(BuildContext context) {
+    // If we have a userId but no user object, and it's not my profile,
+    // we would ideally fetch the user. For now, we show a placeholder or basic info if available.
+    // If it's my profile (isMyProfile), we show the hardcoded mock (current behavior).
+
+    // Fallback logic for display
+    final displayUser = user;
+    final displayName = displayUser?.fullName ?? (isMyProfile ? 'Juan Perez' : 'Usuario');
+    final displayUsername = displayUser?.username ?? (isMyProfile ? 'juanperez' : 'usuario');
+    final displayImage = displayUser?.profileImage ?? (isMyProfile ? 'https://randomuser.me/api/portraits/men/1.jpg' : null);
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('Perfil'), // Or username
+        title: Text(displayUsername),
         backgroundColor: Colors.white,
         elevation: 0,
         actions: [
@@ -44,7 +64,10 @@ class ProfilePage extends StatelessWidget {
                   backgroundColor: Colors.white,
                   child: CircleAvatar(
                     radius: 46,
-                    backgroundImage: NetworkImage('https://randomuser.me/api/portraits/men/1.jpg'),
+                    backgroundImage: displayImage != null
+                        ? NetworkImage(displayImage)
+                        : null,
+                    child: displayImage == null ? const Icon(Icons.person, size: 40) : null,
                   ),
                 ),
               ),
@@ -56,15 +79,15 @@ class ProfilePage extends StatelessWidget {
           Center(
             child: Column(
               children: [
-                const Text(
-                  'Juan Perez',
-                  style: TextStyle(
+                Text(
+                  displayName,
+                  style: const TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 Text(
-                  '@juanperez',
+                  '@$displayUsername',
                   style: TextStyle(
                     fontSize: 16,
                     color: Colors.grey.shade600,
@@ -100,17 +123,31 @@ class ProfilePage extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              ElevatedButton(
-                onPressed: () {
-                  context.push('/edit-profile');
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.deepPurple,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 32),
+              if (isMyProfile)
+                ElevatedButton(
+                  onPressed: () {
+                    context.push('/edit-profile');
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.deepPurple,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 32),
+                  ),
+                  child: const Text('Editar Perfil'),
+                )
+              else
+                ElevatedButton(
+                  onPressed: () {
+                    // Follow logic
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.deepPurple,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 32),
+                  ),
+                  child: const Text('Seguir'),
                 ),
-                child: const Text('Editar Perfil'),
-              ),
+
               const SizedBox(width: 16),
               OutlinedButton(
                 onPressed: () {},

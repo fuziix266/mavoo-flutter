@@ -371,7 +371,7 @@ class _SearchPageState extends State<SearchPage>
       title: Text(person.fullName ?? ''),
       subtitle: Text('@${person.username}'),
       onTap: () {
-        // TODO: Navigate to profile
+        context.push('/profile/${person.id}', extra: person);
       },
     );
   }
