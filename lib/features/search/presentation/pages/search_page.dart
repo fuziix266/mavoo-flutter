@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../data/models/search_history_model.dart';
 import '../../data/models/search_results_model.dart';
@@ -260,7 +261,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
         title: Text(event.name),
         subtitle: Text(event.location ?? ''),
         onTap: () {
-          // TODO: Navigate to event details
+          context.push('/events/${event.id}', extra: event);
         },
       ),
     );
