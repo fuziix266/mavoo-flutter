@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import '../../../../core/utils/api_constants.dart';
+import '../../../../features/auth/data/datasources/auth_local_data_source.dart';
+import '../../../../injection_container.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../data/models/search_history_model.dart';
 import '../../data/models/search_results_model.dart';
@@ -28,7 +31,10 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
     _searchController = TextEditingController();
-    _searchRepository = SearchRepository(baseUrl: 'http://localhost:8000');
+    _searchRepository = SearchRepository(
+      baseUrl: ApiConstants.baseUrl,
+      authLocalDataSource: sl<AuthLocalDataSource>(),
+    );
     _loadRecentSearches();
     
     _searchController.addListener(_onSearchChanged);
