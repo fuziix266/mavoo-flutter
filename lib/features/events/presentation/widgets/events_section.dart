@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../data/models/event_model.dart';
 import '../../data/repositories/event_repository.dart';
+import '../../../auth/presentation/bloc/auth_bloc.dart';
 
 class EventsSection extends StatefulWidget {
   final EventRepository repository;
@@ -33,10 +35,59 @@ class _EventsSectionState extends State<EventsSection> {
   Future<void> _loadEvents() async {
     setState(() => isLoading = true);
     final loadedEvents = await widget.repository.getUpcomingEvents();
-    setState(() {
-      events = loadedEvents;
-      isLoading = false;
-    });
+    if (mounted) {
+      setState(() {
+        events = loadedEvents;
+        isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _handleEnrollment(Event event) async {
+    final authState = context.read<AuthBloc>().state;
+    if (authState is AuthAuthenticated) {
+      try {
+        final userId = int.parse(authState.user.id);
+
+        // Mostrar indicador de carga o feedback inmediato si se desea
+
+        final success = await widget.repository.registerForEvent(event.id, userId);
+
+        if (!mounted) return;
+
+        if (success) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('¡Inscripción exitosa!'),
+              backgroundColor: Color(0xFF0046fc),
+            ),
+          );
+          _loadEvents(); // Actualizar lista para reflejar cambios en participantes
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('No se pudo completar la inscripción. Verifica si ya estás inscrito o intenta más tarde.'),
+              backgroundColor: Colors.orange,
+            ),
+          );
+        }
+      } catch (e) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error al procesar usuario: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Debes iniciar sesión para inscribirte.'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+    }
   }
 
   void _previousEvent() {
@@ -165,7 +216,10 @@ class _EventsSectionState extends State<EventsSection> {
                       itemBuilder: (context, index) {
                         return Padding(
                           padding: const EdgeInsets.all(16),
-                          child: _EventCard(event: events[index]),
+                          child: _EventCard(
+                            event: events[index],
+                            onEnroll: _handleEnrollment,
+                          ),
                         );
                       },
                     ),
@@ -257,8 +311,12 @@ class _EventsSectionState extends State<EventsSection> {
 
 class _EventCard extends StatelessWidget {
   final Event event;
+  final Function(Event) onEnroll;
 
-  const _EventCard({required this.event});
+  const _EventCard({
+    required this.event,
+    required this.onEnroll,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -369,9 +427,7 @@ class _EventCard extends StatelessWidget {
                   style: const TextStyle(fontSize: 12, color: Colors.grey),
                 ),
                 ElevatedButton(
-                  onPressed: event.isFull ? null : () {
-                    // TODO: Implementar inscripción
-                  },
+                  onPressed: event.isFull ? null : () => onEnroll(event),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF0046fc),
                     foregroundColor: Colors.white,
