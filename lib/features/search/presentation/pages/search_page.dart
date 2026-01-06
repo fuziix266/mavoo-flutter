@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/utils/api_constants.dart';
 import '../../data/models/search_history_model.dart';
 import '../../data/models/search_results_model.dart';
 import '../../data/repositories/search_repository.dart';
 import '../../../events/data/models/event_model.dart';
 import '../../../auth/data/models/user_model.dart';
+import '../../../auth/presentation/bloc/auth_bloc.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({Key? key}) : super(key: key);
@@ -28,7 +31,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
     _searchController = TextEditingController();
-    _searchRepository = SearchRepository(baseUrl: 'http://localhost:8000');
+    _searchRepository = SearchRepository(baseUrl: ApiConstants.baseUrl);
     _loadRecentSearches();
     
     _searchController.addListener(_onSearchChanged);
@@ -39,6 +42,14 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
     _tabController.dispose();
     _searchController.dispose();
     super.dispose();
+  }
+
+  String? _getUserId() {
+    final state = context.read<AuthBloc>().state;
+    if (state is AuthAuthenticated) {
+      return state.user.id;
+    }
+    return null;
   }
 
   void _onSearchChanged() {
@@ -53,15 +64,23 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
   }
 
   Future<void> _loadRecentSearches() async {
-    final history = await _searchRepository.getHistory(limit: 10);
-    setState(() {
-      _recentSearches = history;
-    });
+    final userId = _getUserId();
+    if (userId == null) return;
+
+    final history = await _searchRepository.getHistory(userId: userId, limit: 10);
+    if (mounted) {
+      setState(() {
+        _recentSearches = history;
+      });
+    }
   }
 
   Future<void> _performSearch() async {
     final query = _searchController.text.trim();
     if (query.isEmpty) return;
+
+    final userId = _getUserId();
+    if (userId == null) return;
 
     setState(() {
       _isLoading = true;
@@ -73,24 +92,30 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
             ? SearchType.people
             : SearchType.events;
 
-    final results = await _searchRepository.search(query, type);
+    final results = await _searchRepository.search(query, type, userId);
     
     // Add to history
     await _searchRepository.addToHistory(
       query,
       type,
+      userId,
       resultsCount: results.people.length + results.events.length,
     );
 
-    setState(() {
-      _searchResults = results;
-      _isLoading = false;
-      _showResults = true;
-    });
+    if (mounted) {
+      setState(() {
+        _searchResults = results;
+        _isLoading = false;
+        _showResults = true;
+      });
+    }
   }
 
   Future<void> _deleteSearch(int id) async {
-    await _searchRepository.deleteHistory(id);
+    final userId = _getUserId();
+    if (userId == null) return;
+
+    await _searchRepository.deleteHistory(id, userId);
     _loadRecentSearches();
   }
 
