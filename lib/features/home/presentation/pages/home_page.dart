@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../../../features/events/data/repositories/event_repository.dart';
 import '../../../../features/stories/presentation/widgets/stories_carousel.dart';
 import '../../../../features/stories/presentation/widgets/stories_bar.dart';
@@ -149,9 +151,18 @@ class _HomePageState extends State<HomePage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Stories Bar (Instagram-style)
-          StoriesBar(
-            repository: storyRepository,
-            currentUserId: 1, // TODO: Get from auth
+          BlocBuilder<AuthBloc, AuthState>(
+            builder: (context, state) {
+              int userId = 0;
+              if (state is AuthAuthenticated) {
+                userId = int.tryParse(state.user.id) ?? 0;
+              }
+              return StoriesBar(
+                key: ValueKey(userId),
+                repository: storyRepository,
+                currentUserId: userId,
+              );
+            },
           ),
           
           // Posts Feed
