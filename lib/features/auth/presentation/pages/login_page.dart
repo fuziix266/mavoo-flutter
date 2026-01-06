@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:cached_network_image/cached_network_image.dart';
 import '../../../../features/auth/presentation/bloc/auth_bloc.dart';
 import 'login_theme.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -410,7 +411,9 @@ class _LoginPageState extends State<LoginPage> {
                     const Text("Mavoo"),
                     const SizedBox(height: 8),
                     CircleAvatar(
-                      backgroundImage: state.user.profileImage != null ? NetworkImage(state.user.profileImage!) : null,
+                      backgroundImage: state.user.profileImage != null
+                          ? CachedNetworkImageProvider(state.user.profileImage!)
+                          : null,
                       child: state.user.profileImage == null ? const Icon(Icons.person) : null,
                     ),
                   ],
@@ -421,7 +424,7 @@ class _LoginPageState extends State<LoginPage> {
                     const Text("Google"),
                     const SizedBox(height: 8),
                     CircleAvatar(
-                      backgroundImage: NetworkImage(state.googleData['profile_pic']),
+                      backgroundImage: CachedNetworkImageProvider(state.googleData['profile_pic']),
                     ),
                   ],
                 ),

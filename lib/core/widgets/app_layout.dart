@@ -59,6 +59,14 @@ class _AppLayoutState extends State<AppLayout> {
     else if (location.startsWith('/events') && !location.startsWith('/events/all')) newIndex = 1; // Assuming events tab
     else if (location.startsWith('/explore') || location.startsWith('/strava')) newIndex = 2;
     else if (location.startsWith('/profile')) newIndex = 3;
+    else {
+      // If we are on a page that is not a main tab (like Messages), deselect tabs?
+      // BottomNavigation might require a valid index.
+      // If we want to show NO selection, we might need to handle -1 in BottomNavigation
+      // For now, let's keep the last valid index or default to 0 if we want "Home" context.
+      // But typically "Mi Actividad" (My Activity) should correspond to something.
+      if (location.startsWith('/my-activity')) newIndex = 2; // Mapping My Activity to Strava/Explore tab if that's the intent
+    }
 
     if (newIndex != _currentIndex) {
       setState(() {

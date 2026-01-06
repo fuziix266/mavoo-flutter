@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../data/repositories/message_repository.dart';
 import '../../data/models/chat_model.dart';
 import '../../../../core/utils/api_client.dart';
@@ -140,8 +141,7 @@ class _MessagesPageState extends State<MessagesPage> {
                                   )
                                 : null,
                             onTap: () {
-                                // Navigate to chat details
-                                // context.push('/messages/${chat.id}');
+                                context.push('/messages/${chat.id}', extra: chat);
                             },
                           );
                         },
