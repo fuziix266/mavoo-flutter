@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
-import '../../data/repositories/event_repository.dart';
 import '../../data/models/event_model.dart';
+import '../../data/repositories/event_repository.dart';
+import '../../../../core/utils/api_client.dart';
 import 'package:mavoo_flutter/core/theme/app_theme.dart';
 
 /// Events Page - Displays upcoming events with featured event at top
-/// 
+///
 /// Design: Shows a large featured event card (event with most participants)
 /// followed by smaller event cards in a grid layout
-/// 
+///
 /// TODO: Future Enhancement - Filter events by user's selected interests from profile
 /// Currently shows all upcoming events sorted by date
 class EventsPage extends StatefulWidget {
@@ -26,7 +27,9 @@ class _EventsPageState extends State<EventsPage> {
   @override
   void initState() {
     super.initState();
-    eventRepository = EventRepository(baseUrl: 'http://localhost:8000');
+    super.initState();
+    // In a real app, this should be injected via DI
+    eventRepository = EventRepository(apiClient: ApiClient());
     _loadEvents();
   }
 
@@ -34,10 +37,11 @@ class _EventsPageState extends State<EventsPage> {
     setState(() => isLoading = true);
     try {
       final events = await eventRepository.getUpcomingEvents();
-      
+
       // Sort by participants to find featured event
-      events.sort((a, b) => b.currentParticipants.compareTo(a.currentParticipants));
-      
+      events.sort(
+          (a, b) => b.currentParticipants.compareTo(a.currentParticipants));
+
       setState(() {
         if (events.isNotEmpty) {
           featuredEvent = events.first;
@@ -177,7 +181,8 @@ class _FeaturedEventCard extends StatelessWidget {
                       return Container(
                         color: AppColors.backgroundLight,
                         child: const Center(
-                          child: Icon(Icons.event, size: 64, color: AppColors.textSecondary),
+                          child: Icon(Icons.event,
+                              size: 64, color: AppColors.textSecondary),
                         ),
                       );
                     },
@@ -185,11 +190,12 @@ class _FeaturedEventCard extends StatelessWidget {
                 : Container(
                     color: AppColors.backgroundLight,
                     child: const Center(
-                      child: Icon(Icons.event, size: 64, color: AppColors.textSecondary),
+                      child: Icon(Icons.event,
+                          size: 64, color: AppColors.textSecondary),
                     ),
                   ),
           ),
-          
+
           // Gradient Overlay
           Container(
             decoration: BoxDecoration(
@@ -215,7 +221,8 @@ class _FeaturedEventCard extends StatelessWidget {
                 Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
                         color: AppColors.primary,
                         borderRadius: BorderRadius.circular(20),
@@ -231,7 +238,8 @@ class _FeaturedEventCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
                         color: Colors.white.withOpacity(0.3),
                         borderRadius: BorderRadius.circular(20),
@@ -247,9 +255,9 @@ class _FeaturedEventCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                
+
                 const Spacer(),
-                
+
                 // Event Info
                 Text(
                   event.name,
@@ -262,22 +270,25 @@ class _FeaturedEventCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 12),
-                
+
                 Row(
                   children: [
-                    const Icon(Icons.calendar_today, color: Colors.white, size: 16),
+                    const Icon(Icons.calendar_today,
+                        color: Colors.white, size: 16),
                     const SizedBox(width: 8),
                     Text(
                       '${event.eventDate.day}/${event.eventDate.month}/${event.eventDate.year}',
                       style: const TextStyle(color: Colors.white, fontSize: 14),
                     ),
                     const SizedBox(width: 20),
-                    const Icon(Icons.location_on, color: Colors.white, size: 16),
+                    const Icon(Icons.location_on,
+                        color: Colors.white, size: 16),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         event.location ?? 'No location',
-                        style: const TextStyle(color: Colors.white, fontSize: 14),
+                        style:
+                            const TextStyle(color: Colors.white, fontSize: 14),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
@@ -298,7 +309,8 @@ class _FeaturedEventCard extends StatelessWidget {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white,
                         foregroundColor: AppColors.primary,
-                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 24, vertical: 12),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
@@ -362,22 +374,25 @@ class _EventCard extends StatelessWidget {
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) {
                         return const Center(
-                          child: Icon(Icons.event, size: 48, color: AppColors.textSecondary),
+                          child: Icon(Icons.event,
+                              size: 48, color: AppColors.textSecondary),
                         );
                       },
                     ),
                   )
                 else
                   const Center(
-                    child: Icon(Icons.event, size: 48, color: AppColors.textSecondary),
+                    child: Icon(Icons.event,
+                        size: 48, color: AppColors.textSecondary),
                   ),
-                
+
                 // Sport Badge
                 Positioned(
                   top: 12,
                   left: 12,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
                       color: AppColors.primary,
                       borderRadius: BorderRadius.circular(4),
@@ -392,7 +407,7 @@ class _EventCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                
+
                 // Favorite Button
                 Positioned(
                   top: 12,
@@ -446,22 +461,26 @@ class _EventCard extends StatelessWidget {
                   const Spacer(),
                   Row(
                     children: [
-                      const Icon(Icons.schedule, size: 14, color: AppColors.textSecondary),
+                      const Icon(Icons.schedule,
+                          size: 14, color: AppColors.textSecondary),
                       const SizedBox(width: 4),
                       Text(
                         '${event.eventDate.hour}:${event.eventDate.minute.toString().padLeft(2, '0')}',
-                        style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                        style: const TextStyle(
+                            fontSize: 12, color: AppColors.textSecondary),
                       ),
                       const Spacer(),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
                           color: AppColors.primary.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Row(
                           children: [
-                            const Icon(Icons.people, size: 12, color: AppColors.primary),
+                            const Icon(Icons.people,
+                                size: 12, color: AppColors.primary),
                             const SizedBox(width: 4),
                             Text(
                               '${event.currentParticipants}',
@@ -491,7 +510,8 @@ class _EventCard extends StatelessWidget {
                       ),
                       child: const Text(
                         'Join',
-                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+                        style: TextStyle(
+                            fontSize: 14, fontWeight: FontWeight.w700),
                       ),
                     ),
                   ),

@@ -52,4 +52,12 @@ class AuthGoogleLoginRequested extends AuthEvent {
   List<Object> get props => [email, firstName, lastName, profilePic];
 }
 
+class AuthSyncProfileConfirmed extends AuthEvent {
+  final User user;
+  final Map<String, dynamic> newData;
 
+  const AuthSyncProfileConfirmed(this.user, this.newData);
+
+  @override
+  List<Object> get props => [user, newData];
+}

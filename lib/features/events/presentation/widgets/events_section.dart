@@ -47,11 +47,11 @@ class _EventsSectionState extends State<EventsSection> {
     final authState = context.read<AuthBloc>().state;
     if (authState is AuthAuthenticated) {
       try {
-        final userId = int.parse(authState.user.id);
-
+        final userId = authState.user.id;
         // Mostrar indicador de carga o feedback inmediato si se desea
 
-        final success = await widget.repository.registerForEvent(event.id, userId);
+        final success =
+            await widget.repository.registerForEvent(event.id, userId);
 
         if (!mounted) return;
 
@@ -66,7 +66,8 @@ class _EventsSectionState extends State<EventsSection> {
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('No se pudo completar la inscripción. Verifica si ya estás inscrito o intenta más tarde.'),
+              content: Text(
+                  'No se pudo completar la inscripción. Verifica si ya estás inscrito o intenta más tarde.'),
               backgroundColor: Colors.orange,
             ),
           );
@@ -148,7 +149,8 @@ class _EventsSectionState extends State<EventsSection> {
                 children: [
                   Row(
                     children: [
-                      const Icon(Icons.calendar_today, color: Colors.white, size: 24),
+                      const Icon(Icons.calendar_today,
+                          color: Colors.white, size: 24),
                       const SizedBox(width: 12),
                       const Text(
                         'Próximos Eventos',
@@ -166,14 +168,17 @@ class _EventsSectionState extends State<EventsSection> {
                       onPressed: () {
                         context.push('/events/all', extra: events);
                       },
-                      icon: const Icon(Icons.grid_view, color: Colors.white, size: 18),
+                      icon: const Icon(Icons.grid_view,
+                          color: Colors.white, size: 18),
                       label: const Text(
                         'Ver todos',
-                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+                        style: TextStyle(
+                            color: Colors.white, fontWeight: FontWeight.w600),
                       ),
                       style: TextButton.styleFrom(
                         backgroundColor: Colors.white.withOpacity(0.2),
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 8),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20),
                         ),
@@ -182,7 +187,7 @@ class _EventsSectionState extends State<EventsSection> {
                 ],
               ),
             ),
-            
+
             // Carrusel de eventos
             if (isLoading)
               const Padding(
@@ -224,10 +229,11 @@ class _EventsSectionState extends State<EventsSection> {
                       },
                     ),
                   ),
-                  
+
                   // Controles de navegación
                   Padding(
-                    padding: const EdgeInsets.only(bottom: 16, left: 16, right: 16),
+                    padding:
+                        const EdgeInsets.only(bottom: 16, left: 16, right: 16),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -238,42 +244,52 @@ class _EventsSectionState extends State<EventsSection> {
                           color: const Color(0xFF0046fc),
                           disabledColor: Colors.grey.shade300,
                           style: IconButton.styleFrom(
-                            backgroundColor: currentIndex > 0 
+                            backgroundColor: currentIndex > 0
                                 ? const Color(0xFF0046fc).withOpacity(0.1)
                                 : Colors.grey.shade100,
                             padding: const EdgeInsets.all(12),
                           ),
                         ),
-                        
+
                         // Indicador de página
                         Row(
                           children: List.generate(
                             events.length > 5 ? 5 : events.length,
                             (index) {
-                              final dotIndex = currentIndex >= 5 
-                                  ? (index == 4 ? events.length - 1 : currentIndex - 2 + index)
+                              final dotIndex = currentIndex >= 5
+                                  ? (index == 4
+                                      ? events.length - 1
+                                      : currentIndex - 2 + index)
                                   : index;
                               return Container(
-                                margin: const EdgeInsets.symmetric(horizontal: 4),
+                                margin:
+                                    const EdgeInsets.symmetric(horizontal: 4),
                                 width: dotIndex == currentIndex ? 24 : 8,
                                 height: 8,
                                 decoration: BoxDecoration(
                                   gradient: dotIndex == currentIndex
                                       ? const LinearGradient(
-                                          colors: [Color(0xFF0046fc), Color(0xFF00b2f6)],
+                                          colors: [
+                                            Color(0xFF0046fc),
+                                            Color(0xFF00b2f6)
+                                          ],
                                         )
                                       : null,
-                                  color: dotIndex == currentIndex ? null : Colors.grey.shade300,
+                                  color: dotIndex == currentIndex
+                                      ? null
+                                      : Colors.grey.shade300,
                                   borderRadius: BorderRadius.circular(4),
                                 ),
                               );
                             },
                           ),
                         ),
-                        
+
                         // Botón siguiente
                         IconButton(
-                          onPressed: currentIndex < events.length - 1 ? _nextEvent : null,
+                          onPressed: currentIndex < events.length - 1
+                              ? _nextEvent
+                              : null,
                           icon: const Icon(Icons.arrow_forward_ios),
                           color: const Color(0xFF0046fc),
                           disabledColor: Colors.grey.shade300,
@@ -287,7 +303,7 @@ class _EventsSectionState extends State<EventsSection> {
                       ],
                     ),
                   ),
-                  
+
                   // Contador de eventos
                   Padding(
                     padding: const EdgeInsets.only(bottom: 12),
@@ -357,10 +373,11 @@ class _EventCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 8),
-                
+
                 // Badge de deporte
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
                       colors: [Color(0xFF0046fc), Color(0xFF00b2f6)],
@@ -377,7 +394,7 @@ class _EventCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 12),
-                
+
                 // Descripción
                 Text(
                   event.description,
@@ -386,7 +403,7 @@ class _EventCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 12),
-                
+
                 // Fecha y ubicación
                 Row(
                   children: [
@@ -398,16 +415,18 @@ class _EventCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                if (event.location != null) ...[ 
+                if (event.location != null) ...[
                   const SizedBox(height: 4),
                   Row(
                     children: [
-                      const Icon(Icons.location_on, size: 16, color: Colors.grey),
+                      const Icon(Icons.location_on,
+                          size: 16, color: Colors.grey),
                       const SizedBox(width: 4),
                       Expanded(
                         child: Text(
                           event.location!,
-                          style: const TextStyle(fontSize: 13, color: Colors.grey),
+                          style:
+                              const TextStyle(fontSize: 13, color: Colors.grey),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -417,7 +436,7 @@ class _EventCard extends StatelessWidget {
                 ],
               ],
             ),
-            
+
             // Participantes y botón
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -431,14 +450,16 @@ class _EventCard extends StatelessWidget {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF0046fc),
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 10),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                     ),
                   ),
                   child: Text(
                     event.isFull ? 'Lleno' : 'Inscribirme',
-                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                    style: const TextStyle(
+                        fontSize: 13, fontWeight: FontWeight.w600),
                   ),
                 ),
               ],
@@ -450,8 +471,20 @@ class _EventCard extends StatelessWidget {
   }
 
   String _formatDate(DateTime date) {
-    final months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 
-                    'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+    final months = [
+      'Ene',
+      'Feb',
+      'Mar',
+      'Abr',
+      'May',
+      'Jun',
+      'Jul',
+      'Ago',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dic'
+    ];
     return '${date.day} ${months[date.month - 1]} ${date.year} - ${date.hour}:${date.minute.toString().padLeft(2, '0')}';
   }
 }

@@ -16,11 +16,8 @@ import '../../features/feed/data/repositories/feed_repository_impl.dart';
 import '../../features/feed/domain/repositories/feed_repository.dart';
 import '../../features/feed/domain/usecases/get_posts_usecase.dart';
 import '../../features/feed/presentation/bloc/feed_bloc.dart';
-<<<<<<< HEAD
 import '../../features/events/data/repositories/event_repository.dart';
-=======
 import '../../features/search/data/repositories/search_repository.dart';
->>>>>>> origin/jules-879775411058750917
 import 'core/utils/api_client.dart';
 import 'core/utils/api_constants.dart';
 
@@ -36,7 +33,7 @@ Future<void> init() async {
   sl.registerLazySingleton<AuthLocalDataSource>(
     () => AuthLocalDataSourceImpl(sharedPreferences: sl()),
   );
-  
+
   // Add Interceptor to ApiClient
   final authInterceptor = AuthInterceptor(localDataSource: sl());
   sl<ApiClient>().addInterceptor(authInterceptor);
@@ -63,10 +60,7 @@ Future<void> init() async {
   );
 
   sl.registerLazySingleton<SearchRepository>(
-    () => SearchRepository(
-      baseUrl: ApiConstants.baseUrl,
-      authLocalDataSource: sl(),
-    ),
+    () => SearchRepository(apiClient: sl()),
   );
 
   // Use Cases

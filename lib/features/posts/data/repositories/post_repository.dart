@@ -1,20 +1,20 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+import '../../../../core/utils/api_client.dart';
 import '../models/post_model.dart';
 
 class PostRepository {
-  final String baseUrl;
+  final ApiClient apiClient;
 
-  PostRepository({required this.baseUrl});
+  PostRepository({required this.apiClient});
 
   Future<List<Post>> getFeed({int page = 1, int limit = 20}) async {
     try {
-      final response = await http.get(
-        Uri.parse('$baseUrl/content/post/feed?page=$page&limit=$limit'),
+      final response = await apiClient.dio.get(
+        '/content/post/feed',
+        queryParameters: {'page': page, 'limit': limit},
       );
 
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+        final data = response.data;
         if (data['success'] == true) {
           final List<dynamic> postsJson = data['posts'] as List;
           return postsJson.map((json) => Post.fromJson(json)).toList();
@@ -27,21 +27,21 @@ class PostRepository {
     }
   }
 
-  Future<bool> createPost(String text, {String? location, String type = 'text'}) async {
+  Future<bool> createPost(String text,
+      {String? location, String type = 'text'}) async {
     try {
-      final response = await http.post(
-        Uri.parse('$baseUrl/content/post/create'),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({
+      final response = await apiClient.dio.post(
+        '/content/post/create',
+        data: {
           'text': text,
           'location': location,
           'post_type': type,
           // TODO: Add image/video logic
-        }),
+        },
       );
 
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+        final data = response.data;
         return data['success'] == true;
       }
       return false;
@@ -53,12 +53,12 @@ class PostRepository {
 
   Future<bool> deletePost(int id) async {
     try {
-      final response = await http.delete(
-        Uri.parse('$baseUrl/content/post/delete/$id'),
+      final response = await apiClient.dio.delete(
+        '/content/post/delete/$id',
       );
 
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+        final data = response.data;
         return data['success'] == true;
       }
       return false;

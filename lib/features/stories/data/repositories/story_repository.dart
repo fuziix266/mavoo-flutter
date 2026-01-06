@@ -1,20 +1,20 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+import '../../../../core/utils/api_client.dart';
 import '../models/story_user_model.dart';
 
 class StoryRepository {
-  final String baseUrl;
+  final ApiClient apiClient;
 
-  StoryRepository({required this.baseUrl});
+  StoryRepository({required this.apiClient});
 
   Future<List<StoryUser>> getStoriesBar(int userId) async {
     try {
-      final response = await http.get(
-        Uri.parse('$baseUrl/content/story/bar?user_id=$userId'),
+      final response = await apiClient.dio.get(
+        '/content/story/bar',
+        queryParameters: {'user_id': userId},
       );
 
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+        final data = response.data;
         if (data['success'] == true && data['data'] != null) {
           final users = (data['data'] as List)
               .map((user) => StoryUser.fromJson(user))

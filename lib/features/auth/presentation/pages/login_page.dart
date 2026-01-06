@@ -9,7 +9,6 @@ import 'login_theme.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
@@ -22,7 +21,7 @@ class _LoginPageState extends State<LoginPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _phoneController = TextEditingController();
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -75,11 +74,11 @@ class _LoginPageState extends State<LoginPage> {
             // Mobile Layout
             return Container(
               decoration: const BoxDecoration(
-                 gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [Colors.white, Color(0xFFF0FFF5)],
-                 ),
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [Colors.white, Color(0xFFF0FFF5)],
+                ),
               ),
               child: Center(
                 child: SingleChildScrollView(
@@ -105,18 +104,18 @@ class _LoginPageState extends State<LoginPage> {
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-             // Add Logo here if available
-             // Image.asset('assets/images/logo.png', width: 50),
+            // Add Logo here if available
+            // Image.asset('assets/images/logo.png', width: 50),
           ],
         ),
         const SizedBox(height: 20),
-        
+
         Text(
           'Welcome',
           style: LoginTheme.headingStyle.copyWith(
-             fontSize: 32, 
-             fontWeight: FontWeight.bold,
-             color: LoginTheme.primaryBlue,
+            fontSize: 32,
+            fontWeight: FontWeight.bold,
+            color: LoginTheme.primaryBlue,
           ),
           textAlign: TextAlign.center,
         ),
@@ -129,8 +128,9 @@ class _LoginPageState extends State<LoginPage> {
           ),
           child: Text(
             'Hello welcome to Mavoo',
-             style: LoginTheme.bodyStyle.copyWith(color: LoginTheme.primaryBlue, fontWeight: FontWeight.w500),
-             textAlign: TextAlign.center,
+            style: LoginTheme.bodyStyle.copyWith(
+                color: LoginTheme.primaryBlue, fontWeight: FontWeight.w500),
+            textAlign: TextAlign.center,
           ),
         ),
         const SizedBox(height: 40),
@@ -158,7 +158,7 @@ class _LoginPageState extends State<LoginPage> {
                   _buildTabButton('Password', 'password'),
                 ],
               ),
-              
+
               // Campos de Input
               Container(
                 decoration: BoxDecoration(
@@ -181,9 +181,9 @@ class _LoginPageState extends State<LoginPage> {
             ],
           ),
         ),
-        
+
         const SizedBox(height: 30),
-        
+
         // Botón de Acción y Mensajes de Error
         BlocListener<AuthBloc, AuthState>(
           listener: (context, state) {
@@ -198,7 +198,9 @@ class _LoginPageState extends State<LoginPage> {
               return Column(
                 children: [
                   if (state is AuthLoading)
-                    const Center(child: CircularProgressIndicator(color: LoginTheme.primaryBlue))
+                    const Center(
+                        child: CircularProgressIndicator(
+                            color: LoginTheme.primaryBlue))
                   else
                     Container(
                       decoration: BoxDecoration(
@@ -233,14 +235,13 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ),
                     ),
-                  
                   if (state is AuthError) ...[
-                     const SizedBox(height: 20),
-                     Text(
-                       state.message,
-                       style: const TextStyle(color: Colors.red),
-                       textAlign: TextAlign.center,
-                     ),
+                    const SizedBox(height: 20),
+                    Text(
+                      state.message,
+                      style: const TextStyle(color: Colors.red),
+                      textAlign: TextAlign.center,
+                    ),
                   ]
                 ],
               );
@@ -249,25 +250,30 @@ class _LoginPageState extends State<LoginPage> {
         ),
 
         const SizedBox(height: 20),
-        
+
         Row(
           children: [
-            Expanded(child: Divider(color: LoginTheme.primaryBlue.withOpacity(0.2), thickness: 1)),
+            Expanded(
+                child: Divider(
+                    color: LoginTheme.primaryBlue.withOpacity(0.2),
+                    thickness: 1)),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Text(
-                "OR",
-                 style: GoogleFonts.poppins(color: LoginTheme.primaryBlue.withOpacity(0.6), fontWeight: FontWeight.w500)
-              ),
+              child: Text("OR",
+                  style: GoogleFonts.poppins(
+                      color: LoginTheme.primaryBlue.withOpacity(0.6),
+                      fontWeight: FontWeight.w500)),
             ),
-            Expanded(child: Divider(color: LoginTheme.primaryBlue.withOpacity(0.2), thickness: 1)),
+            Expanded(
+                child: Divider(
+                    color: LoginTheme.primaryBlue.withOpacity(0.2),
+                    thickness: 1)),
           ],
         ),
         const SizedBox(height: 20),
         _buildGoogleButton(),
       ],
     );
-
   }
 
   Widget _buildTabButton(String label, String value) {
@@ -280,9 +286,9 @@ class _LoginPageState extends State<LoginPage> {
           decoration: BoxDecoration(
             color: isSelected ? null : Colors.white,
             gradient: isSelected ? LoginTheme.buttonGradient : null,
-            borderRadius: value == 'email' 
+            borderRadius: value == 'email'
                 ? const BorderRadius.only(topLeft: Radius.circular(12))
-                : value == 'password' 
+                : value == 'password'
                     ? const BorderRadius.only(topRight: Radius.circular(12))
                     : null,
           ),
@@ -301,21 +307,28 @@ class _LoginPageState extends State<LoginPage> {
 
   Widget _buildInputs() {
     if (_selectedOption == 'email') {
-      return _buildTextField(_emailController, 'Enter your Email', TextInputType.emailAddress);
+      return _buildTextField(
+          _emailController, 'Enter your Email', TextInputType.emailAddress);
     } else if (_selectedOption == 'phone') {
-      return _buildTextField(_phoneController, 'Enter phone number', TextInputType.phone);
+      return _buildTextField(
+          _phoneController, 'Enter phone number', TextInputType.phone);
     } else {
       return Column(
         children: [
-          _buildTextField(_emailController, 'Username or Email', TextInputType.text),
+          _buildTextField(
+              _emailController, 'Username or Email', TextInputType.text),
           const SizedBox(height: 12),
-          _buildTextField(_passwordController, 'Password', TextInputType.visiblePassword, obscureText: true),
+          _buildTextField(
+              _passwordController, 'Password', TextInputType.visiblePassword,
+              obscureText: true),
         ],
       );
     }
   }
 
-  Widget _buildTextField(TextEditingController controller, String hint, TextInputType type, {bool obscureText = false}) {
+  Widget _buildTextField(
+      TextEditingController controller, String hint, TextInputType type,
+      {bool obscureText = false}) {
     return TextField(
       controller: controller,
       keyboardType: type,
@@ -325,14 +338,17 @@ class _LoginPageState extends State<LoginPage> {
         hintStyle: GoogleFonts.poppins(color: Colors.grey[400], fontSize: 14),
         filled: true,
         fillColor: Colors.white,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: LoginTheme.primaryBlue.withOpacity(0.2)),
+          borderSide:
+              BorderSide(color: LoginTheme.primaryBlue.withOpacity(0.2)),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: LoginTheme.primaryBlue.withOpacity(0.2)),
+          borderSide:
+              BorderSide(color: LoginTheme.primaryBlue.withOpacity(0.2)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
@@ -345,11 +361,11 @@ class _LoginPageState extends State<LoginPage> {
   void _handleLogin() {
     if (_selectedOption == 'password') {
       context.read<AuthBloc>().add(
-        AuthLoginRequested(
-          email: _emailController.text,
-          password: _passwordController.text,
-        ),
-      );
+            AuthLoginRequested(
+              email: _emailController.text,
+              password: _passwordController.text,
+            ),
+          );
     } else {
       // Implementar lógica de OTP aquí
       ScaffoldMessenger.of(context).showSnackBar(
@@ -358,50 +374,55 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-
   Widget _buildGoogleButton() {
-     return InkWell(
-        onTap: _handleGoogleSignIn,
-        child: Container(
-           padding: const EdgeInsets.symmetric(vertical: 12),
-           decoration: BoxDecoration(
-             color: Colors.white,
-             borderRadius: BorderRadius.circular(12),
-             border: Border.all(color: LoginTheme.primaryBlue.withOpacity(0.2), width: 2),
-             boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 5,
-                  offset: const Offset(0, 2),
-                ),
-             ], 
-           ),
-           child: Row(
-             mainAxisAlignment: MainAxisAlignment.center,
-             children: [
-                const FaIcon(FontAwesomeIcons.google, color: LoginTheme.primaryBlue), // Google Logo
-                const SizedBox(width: 12),
-                Text("Continue with Google", style: GoogleFonts.poppins(
-                   fontSize: 16, 
-                   fontWeight: FontWeight.w600, 
-                   color: LoginTheme.primaryBlue
-                )),
-             ],
-           ),
+    return InkWell(
+      onTap: _handleGoogleSignIn,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+              color: LoginTheme.primaryBlue.withOpacity(0.2), width: 2),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 5,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
-     );
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const FaIcon(FontAwesomeIcons.google,
+                color: LoginTheme.primaryBlue), // Google Logo
+            const SizedBox(width: 12),
+            Text("Continue with Google",
+                style: GoogleFonts.poppins(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: LoginTheme.primaryBlue)),
+          ],
+        ),
+      ),
+    );
   }
 
-  void _showProfileSyncDialog(BuildContext context, AuthUserDataMismatch state) {
+  void _showProfileSyncDialog(
+      BuildContext context, AuthUserDataMismatch state) {
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
-        title: Text('Actualizar Perfil', style: GoogleFonts.poppins(fontWeight: FontWeight.bold)),
+        title: Text('Actualizar Perfil',
+            style: GoogleFonts.poppins(fontWeight: FontWeight.bold)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('Hemos detectado que tu foto de Google es diferente a la de Mavoo.', style: GoogleFonts.poppins()),
+            Text(
+                'Hemos detectado que tu foto de Google es diferente a la de Mavoo.',
+                style: GoogleFonts.poppins()),
             const SizedBox(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -414,7 +435,9 @@ class _LoginPageState extends State<LoginPage> {
                       backgroundImage: state.user.profileImage != null
                           ? CachedNetworkImageProvider(state.user.profileImage!)
                           : null,
-                      child: state.user.profileImage == null ? const Icon(Icons.person) : null,
+                      child: state.user.profileImage == null
+                          ? const Icon(Icons.person)
+                          : null,
                     ),
                   ],
                 ),
@@ -424,14 +447,16 @@ class _LoginPageState extends State<LoginPage> {
                     const Text("Google"),
                     const SizedBox(height: 8),
                     CircleAvatar(
-                      backgroundImage: CachedNetworkImageProvider(state.googleData['profile_pic']),
+                      backgroundImage: CachedNetworkImageProvider(
+                          state.newData['profile_pic']),
                     ),
                   ],
                 ),
               ],
             ),
             const SizedBox(height: 16),
-            Text('¿Deseas sincronizar tu perfil con los datos de Google?', style: GoogleFonts.poppins()),
+            Text('¿Deseas sincronizar tu perfil con los datos de Google?',
+                style: GoogleFonts.poppins()),
           ],
         ),
         actions: [
@@ -439,7 +464,8 @@ class _LoginPageState extends State<LoginPage> {
             onPressed: () {
               Navigator.pop(context); // Close dialog
               // Proceed with existing data
-              context.read<AuthBloc>().add(AuthSyncProfileConfirmed(state.user, {})); // Empty map means no change
+              context.read<AuthBloc>().add(AuthSyncProfileConfirmed(
+                  state.user, {})); // Empty map means no change
             },
             child: const Text('No, mantener actual'),
           ),
@@ -447,7 +473,9 @@ class _LoginPageState extends State<LoginPage> {
             onPressed: () {
               Navigator.pop(context);
               // Sync
-              context.read<AuthBloc>().add(AuthSyncProfileConfirmed(state.user, state.googleData));
+              context
+                  .read<AuthBloc>()
+                  .add(AuthSyncProfileConfirmed(state.user, state.newData));
             },
             child: const Text('Sí, sincronizar'),
           ),
@@ -457,42 +485,39 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> _handleGoogleSignIn() async {
-      try {
-        // IMPORTANT: Platform-conditional Google Sign-In configuration
-        // Modified on: 2025-12-28 by Antigravity AI
-        // 
-        // TROUBLESHOOTING:
-        // - If Google Sign-In fails on MOBILE (Android/iOS): Check that serverClientId is correct
-        // - If Google Sign-In fails on WEB: Check that kIsWeb is properly detecting the platform
-        // - The serverClientId below is for Android/iOS ONLY (not supported on web)
-        // 
-        // PLATFORM BEHAVIOR:
-        // - Web (Chrome/Firefox): serverClientId = null (basic OAuth flow)
-        // - Mobile (Android/iOS): serverClientId = '786526...' (full server-side auth)
-        final GoogleSignIn googleSignIn = GoogleSignIn(
-          scopes: ['email', 'profile'],
-          serverClientId: kIsWeb 
-              ? null  // Web: null to avoid "serverClientId is not supported on Web" error
-              : '786526489558-t0n9bh82ssirkasteo47c1sipfvdqbo1.apps.googleusercontent.com',  // Mobile only
-        );
-        final GoogleSignInAccount? account = await googleSignIn.signIn();
+    try {
+      // IMPORTANT: Platform-conditional Google Sign-In configuration
+      // Modified on: 2025-12-28 by Antigravity AI
+      //
+      // TROUBLESHOOTING:
+      // - If Google Sign-In fails on MOBILE (Android/iOS): Check that serverClientId is correct
+      // - If Google Sign-In fails on WEB: Check that kIsWeb is properly detecting the platform
+      // - The serverClientId below is for Android/iOS ONLY (not supported on web)
+      //
+      // PLATFORM BEHAVIOR:
+      // - Web (Chrome/Firefox): serverClientId = null (basic OAuth flow)
+      // - Mobile (Android/iOS): serverClientId = '786526...' (full server-side auth)
+      final GoogleSignIn googleSignIn = GoogleSignIn(
+        scopes: ['email', 'profile'],
+        serverClientId: kIsWeb
+            ? null // Web: null to avoid "serverClientId is not supported on Web" error
+            : '786526489558-t0n9bh82ssirkasteo47c1sipfvdqbo1.apps.googleusercontent.com', // Mobile only
+      );
+      final GoogleSignInAccount? account = await googleSignIn.signIn();
 
-        
-        if (account != null) {
-            // Send to Bloc
-            context.read<AuthBloc>().add(AuthGoogleLoginRequested(
+      if (account != null) {
+        // Send to Bloc
+        context.read<AuthBloc>().add(AuthGoogleLoginRequested(
               email: account.email,
               firstName: account.displayName?.split(' ').first ?? '',
               lastName: account.displayName?.split(' ').skip(1).join(' ') ?? '',
               profilePic: account.photoUrl ?? '',
             ));
-        }
-      } catch (e) {
-         print(e);
-         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Google Sign In Failed: $e')));
       }
+    } catch (e) {
+      print(e);
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Google Sign In Failed: $e')));
+    }
   }
-
-
 }
-

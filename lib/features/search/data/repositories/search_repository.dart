@@ -2,43 +2,19 @@ import 'package:dio/dio.dart';
 import '../../../../core/utils/api_client.dart';
 import '../models/search_history_model.dart';
 import '../models/search_results_model.dart';
-import '../../../auth/data/datasources/auth_local_data_source.dart';
 
 class SearchRepository {
-<<<<<<< HEAD
   final ApiClient apiClient;
 
   SearchRepository({required this.apiClient});
-=======
-  final String baseUrl;
-  final AuthLocalDataSource authLocalDataSource;
-
-  SearchRepository({
-    required this.baseUrl,
-    required this.authLocalDataSource,
-  });
-
-  Future<String> _getUserId() async {
-    final user = await authLocalDataSource.getLastUser();
-    return user?.id.toString() ?? '0';
-  }
->>>>>>> origin/jules-879775411058750917
 
   /// Unified search across multiple types
   Future<SearchResults> search(
       String userId, String query, SearchType type) async {
     try {
-<<<<<<< HEAD
       final response = await apiClient.dio.post(
         '/content/search/query',
         data: {
-=======
-      final userId = await _getUserId();
-      final response = await http.post(
-        Uri.parse('$baseUrl/content/search/query'),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({
->>>>>>> origin/jules-879775411058750917
           'user_id': userId,
           'query': query,
           'type': _searchTypeToString(type),
@@ -66,7 +42,6 @@ class SearchRepository {
     int limit = 10,
   }) async {
     try {
-<<<<<<< HEAD
       final response = await apiClient.dio.get(
         '/content/search/history',
         queryParameters: {
@@ -75,19 +50,6 @@ class SearchRepository {
           'limit': limit,
         },
       );
-=======
-      final userId = await _getUserId();
-      final queryParams = {
-        'user_id': userId,
-        'type': type != null ? _searchTypeToString(type) : 'all',
-        'limit': limit.toString(),
-      };
-
-      final uri = Uri.parse('$baseUrl/content/search/history')
-          .replace(queryParameters: queryParams);
-
-      final response = await http.get(uri);
->>>>>>> origin/jules-879775411058750917
 
       if (response.statusCode == 200) {
         final data = response.data;
@@ -117,17 +79,9 @@ class SearchRepository {
     int resultsCount = 0,
   }) async {
     try {
-<<<<<<< HEAD
       await apiClient.dio.post(
         '/content/search/history/add',
         data: {
-=======
-      final userId = await _getUserId();
-      await http.post(
-        Uri.parse('$baseUrl/content/search/history/add'),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({
->>>>>>> origin/jules-879775411058750917
           'user_id': userId,
           'query': query,
           'type': _searchTypeToString(type),
@@ -145,18 +99,10 @@ class SearchRepository {
   /// Delete specific search history item (soft delete)
   Future<bool> deleteHistory(String userId, int historyId) async {
     try {
-<<<<<<< HEAD
       final response = await apiClient.dio.delete(
         '/content/search/history/$historyId',
         queryParameters: {'user_id': userId},
       );
-=======
-      final userId = await _getUserId();
-      final uri = Uri.parse('$baseUrl/content/search/history/$historyId')
-          .replace(queryParameters: {'user_id': userId});
-
-      final response = await http.delete(uri);
->>>>>>> origin/jules-879775411058750917
 
       if (response.statusCode == 200) {
         final data = response.data;
@@ -173,7 +119,6 @@ class SearchRepository {
   /// Clear all history (soft delete)
   Future<bool> clearHistory(String userId, {SearchType? type}) async {
     try {
-<<<<<<< HEAD
       final response = await apiClient.dio.delete(
         '/content/search/history/clear',
         queryParameters: {
@@ -181,18 +126,6 @@ class SearchRepository {
           'type': type != null ? _searchTypeToString(type) : 'all',
         },
       );
-=======
-      final userId = await _getUserId();
-      final queryParams = {
-        'user_id': userId,
-        'type': type != null ? _searchTypeToString(type) : 'all',
-      };
-
-      final uri = Uri.parse('$baseUrl/content/search/history/clear')
-          .replace(queryParameters: queryParams);
-
-      final response = await http.delete(uri);
->>>>>>> origin/jules-879775411058750917
 
       if (response.statusCode == 200) {
         final data = response.data;

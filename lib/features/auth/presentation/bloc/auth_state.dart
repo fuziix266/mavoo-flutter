@@ -26,3 +26,12 @@ class AuthError extends AuthState {
 
 class AuthUnauthenticated extends AuthState {}
 
+class AuthUserDataMismatch extends AuthState {
+  final User user;
+  final Map<String, dynamic> newData;
+
+  const AuthUserDataMismatch(this.user, this.newData);
+
+  @override
+  List<Object> get props => [user, newData];
+}

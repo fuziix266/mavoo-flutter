@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../../../features/events/data/repositories/event_repository.dart';
 import '../../../../features/stories/presentation/widgets/stories_carousel.dart';
+import '../../../../core/utils/api_client.dart';
 import '../../../../features/stories/presentation/widgets/stories_bar.dart';
 import '../../../../features/stories/data/repositories/story_repository.dart';
 import '../../../../features/stories/data/models/story_model.dart';
@@ -28,10 +29,11 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    final baseUrl = 'http://localhost:8000';
-    eventRepository = EventRepository(baseUrl: baseUrl);
-    postRepository = PostRepository(baseUrl: baseUrl);
-    storyRepository = StoryRepository(baseUrl: baseUrl);
+    super.initState();
+    final apiClient = ApiClient();
+    eventRepository = EventRepository(apiClient: apiClient);
+    postRepository = PostRepository(apiClient: apiClient);
+    storyRepository = StoryRepository(apiClient: apiClient);
     _loadData();
   }
 
@@ -131,7 +133,8 @@ class _HomePageState extends State<HomePage> {
         userFirstName: 'Carlos',
         userLastName: 'Rodriguez',
         userProfilePic: 'https://randomuser.me/api/portraits/men/3.jpg',
-        text: 'Increíble vista desde la cima de la montaña. Valió la pena el esfuerzo.',
+        text:
+            'Increíble vista desde la cima de la montaña. Valió la pena el esfuerzo.',
         location: 'Montaña Alta',
         postType: 'image',
         createdAt: DateTime.now().subtract(const Duration(hours: 5)),
@@ -164,7 +167,7 @@ class _HomePageState extends State<HomePage> {
               );
             },
           ),
-          
+
           // Posts Feed
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
@@ -179,15 +182,17 @@ class _HomePageState extends State<HomePage> {
           ),
 
           if (isLoadingPosts)
-            const Center(child: Padding(
-               padding: EdgeInsets.all(20),
-               child: CircularProgressIndicator(),
+            const Center(
+                child: Padding(
+              padding: EdgeInsets.all(20),
+              child: CircularProgressIndicator(),
             ))
           else if (posts.isEmpty)
             const Center(
               child: Padding(
                 padding: EdgeInsets.all(40),
-                child: Text('No hay publicaciones aún', style: TextStyle(color: Colors.grey)),
+                child: Text('No hay publicaciones aún',
+                    style: TextStyle(color: Colors.grey)),
               ),
             )
           else
@@ -199,7 +204,7 @@ class _HomePageState extends State<HomePage> {
                 return PostCard(post: posts[index]);
               },
             ),
-          
+
           const SizedBox(height: 80), // Bottom padding
         ],
       ),

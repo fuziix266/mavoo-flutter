@@ -69,14 +69,6 @@ class _SearchPageState extends State<SearchPage>
     }
   }
 
-  String? _getUserId() {
-    final authState = context.read<AuthBloc>().state;
-    if (authState is AuthAuthenticated) {
-      return authState.user.id;
-    }
-    return null;
-  }
-
   Future<void> _loadRecentSearches() async {
     final userId = _getUserId();
     if (userId == null) return;
@@ -95,9 +87,6 @@ class _SearchPageState extends State<SearchPage>
 
     final query = _searchController.text.trim();
     if (query.isEmpty) return;
-
-    final userId = _getUserId();
-    if (userId == null) return;
 
     setState(() {
       _isLoading = true;
