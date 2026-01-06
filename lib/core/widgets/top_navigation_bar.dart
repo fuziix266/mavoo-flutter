@@ -273,7 +273,7 @@ class TopNavigationBar extends StatelessWidget {
                         onSelected: (String value) {
                           switch (value) {
                             case 'settings':
-                              // TODO: Navigate to settings
+                              context.go('/settings');
                               break;
                             case 'help':
                               // TODO: Navigate to help
