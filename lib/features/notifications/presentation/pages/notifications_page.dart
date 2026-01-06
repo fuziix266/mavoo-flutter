@@ -1,7 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import '../../../../injection_container.dart';
+import '../bloc/notification_bloc.dart';
+import '../../data/models/notification_model.dart';
 
 class NotificationsPage extends StatelessWidget {
   const NotificationsPage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => sl<NotificationBloc>()..add(LoadNotifications()),
+      child: const NotificationsView(),
+    );
+  }
+}
+
+class NotificationsView extends StatelessWidget {
+  const NotificationsView({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -9,7 +26,6 @@ class NotificationsPage extends StatelessWidget {
       color: Colors.white,
       child: Column(
         children: [
-          // Custom App Bar
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
@@ -28,62 +44,86 @@ class NotificationsPage extends StatelessWidget {
           ),
 
           Expanded(
-            child: ListView.separated(
-              itemCount: 15,
-              separatorBuilder: (context, index) => const Divider(height: 1),
-              itemBuilder: (context, index) {
-                final isNew = index < 3;
-                return Container(
-            color: isNew ? Colors.blue.withOpacity(0.05) : Colors.white,
-            child: ListTile(
-              leading: CircleAvatar(
-                backgroundImage: NetworkImage('https://randomuser.me/api/portraits/thumb/women/${index + 10}.jpg'),
-              ),
-              title: RichText(
-                text: TextSpan(
-                  style: const TextStyle(color: Colors.black),
-                  children: [
-                    TextSpan(
-                      text: 'Usuario ${index + 10} ',
-                      style: const TextStyle(fontWeight: FontWeight.bold),
+            child: BlocBuilder<NotificationBloc, NotificationState>(
+              builder: (context, state) {
+                if (state is NotificationLoading) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (state is NotificationLoaded) {
+                  if (state.notifications.isEmpty) {
+                    return const Center(child: Text('No tienes notificaciones'));
+                  }
+                  return ListView.separated(
+                    itemCount: state.notifications.length,
+                    separatorBuilder: (context, index) => const Divider(height: 1),
+                    itemBuilder: (context, index) {
+                      return _buildNotificationItem(context, state.notifications[index]);
+                    },
+                  );
+                } else if (state is NotificationError) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text('Error al cargar notificaciones'),
+                        ElevatedButton(
+                          onPressed: () => context.read<NotificationBloc>().add(LoadNotifications()),
+                          child: const Text('Reintentar'),
+                        ),
+                      ],
                     ),
-                    TextSpan(
-                      text: index % 2 == 0
-                          ? 'comenzó a seguirte.'
-                          : 'le gustó tu publicación.',
-                    ),
-                  ],
-                ),
-              ),
-              subtitle: Text(
-                '${index + 1} h',
-                style: TextStyle(color: Colors.grey.shade600),
-              ),
-              trailing: index % 2 == 0
-                  ? ElevatedButton(
-                      onPressed: () {},
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue,
-                        foregroundColor: Colors.white,
-                        minimumSize: const Size(80, 32),
-                        padding: EdgeInsets.zero,
-                      ),
-                      child: const Text('Seguir'),
-                    )
-                  : Image.network(
-                      'https://picsum.photos/50/50?random=$index',
-                      width: 40,
-                      height: 40,
-                      fit: BoxFit.cover,
-                    ),
-              onTap: () {},
+                  );
+                }
+                return const SizedBox();
+              },
             ),
-          );
-        },
-      ),
           ),
         ],
       ),
     );
+  }
+
+  Widget _buildNotificationItem(BuildContext context, NotificationModel notification) {
+    return Container(
+      color: !notification.isRead ? Colors.blue.withOpacity(0.05) : Colors.white,
+      child: ListTile(
+        leading: CircleAvatar(
+          backgroundImage: notification.userImage != null
+              ? NetworkImage(notification.userImage!)
+              : null,
+          child: notification.userImage == null ? const Icon(Icons.notifications) : null,
+        ),
+        title: Text(notification.title, style: const TextStyle(fontWeight: FontWeight.bold)),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(notification.body),
+            const SizedBox(height: 4),
+            Text(
+              _formatTime(notification.createdAt),
+              style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+            ),
+          ],
+        ),
+        onTap: () {
+          context.read<NotificationBloc>().add(MarkNotificationAsRead(notification.id));
+          _handleNavigation(context, notification);
+        },
+      ),
+    );
+  }
+
+  void _handleNavigation(BuildContext context, NotificationModel notification) {
+    if (notification.type == 'post_like' || notification.type == 'comment') {
+      if (notification.relatedId != null) {
+        // Explicitly navigate to the specific post ID
+        context.push('/posts/${notification.relatedId}');
+      }
+    } else if (notification.type == 'follow') {
+      context.push('/profile'); // Simplified for demo, ideally /profile/:id
+    }
+  }
+
+  String _formatTime(DateTime time) {
+    return "${time.day}/${time.month} ${time.hour}:${time.minute}";
   }
 }

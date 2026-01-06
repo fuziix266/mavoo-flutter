@@ -1,19 +1,26 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import '../../../../core/utils/api_constants.dart';
 import '../models/search_history_model.dart';
 import '../models/search_results_model.dart';
 
 class SearchRepository {
+  // Use ApiConstants.baseUrl
   final String baseUrl;
 
-  SearchRepository({required this.baseUrl});
+  SearchRepository({String? baseUrl}) : baseUrl = baseUrl ?? ApiConstants.baseUrl;
+
+  Map<String, String> get _headers => {
+    'Content-Type': 'application/json',
+    'Host': 'retrobox.cl', // Essential for Traefik
+  };
 
   /// Unified search across multiple types
   Future<SearchResults> search(String query, SearchType type) async {
     try {
       final response = await http.post(
         Uri.parse('$baseUrl/content/search/query'),
-        headers: {'Content-Type': 'application/json'},
+        headers: _headers,
         body: json.encode({
           'user_id': 1, // TODO: Get from auth
           'query': query,
@@ -31,7 +38,7 @@ class SearchRepository {
       return SearchResults(people: [], events: []);
     } catch (e) {
       print('Error searching: $e');
-      return SearchResults(people: [], events: []);
+      throw Exception('Failed to search'); // Throw to handle in UI
     }
   }
 
@@ -50,7 +57,7 @@ class SearchRepository {
       final uri = Uri.parse('$baseUrl/content/search/history')
           .replace(queryParameters: queryParams);
 
-      final response = await http.get(uri);
+      final response = await http.get(uri, headers: _headers);
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
@@ -80,7 +87,7 @@ class SearchRepository {
     try {
       await http.post(
         Uri.parse('$baseUrl/content/search/history/add'),
-        headers: {'Content-Type': 'application/json'},
+        headers: _headers,
         body: json.encode({
           'user_id': 1, // TODO: Get from auth
           'query': query,
@@ -101,7 +108,7 @@ class SearchRepository {
       final uri = Uri.parse('$baseUrl/content/search/history/$historyId')
           .replace(queryParameters: {'user_id': '1'}); // TODO: Get from auth
 
-      final response = await http.delete(uri);
+      final response = await http.delete(uri, headers: _headers);
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
@@ -126,7 +133,7 @@ class SearchRepository {
       final uri = Uri.parse('$baseUrl/content/search/history/clear')
           .replace(queryParameters: queryParams);
 
-      final response = await http.delete(uri);
+      final response = await http.delete(uri, headers: _headers);
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);

@@ -1,7 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import '../../../../injection_container.dart';
+import '../bloc/chat_bloc.dart';
+import '../../data/models/message_model.dart'; // Import Conversation
 
 class MessagesPage extends StatelessWidget {
   const MessagesPage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => sl<ChatBloc>()..add(LoadConversations()),
+      child: const MessagesView(),
+    );
+  }
+}
+
+class MessagesView extends StatelessWidget {
+  const MessagesView({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -50,107 +67,96 @@ class MessagesPage extends StatelessWidget {
             ),
           ),
 
-          // Stories row (Active users)
-          SizedBox(
-            height: 100,
-            child: ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              scrollDirection: Axis.horizontal,
-              itemCount: 10,
-              itemBuilder: (context, index) {
-                return Padding(
-                  padding: const EdgeInsets.only(right: 16),
-                  child: Column(
-                    children: [
-                      Stack(
-                        children: [
-                          CircleAvatar(
-                            radius: 30,
-                            backgroundImage: NetworkImage('https://randomuser.me/api/portraits/thumb/men/${index + 20}.jpg'),
-                          ),
-                          if (index % 3 == 0)
-                            Positioned(
-                              right: 0,
-                              bottom: 0,
-                              child: Container(
-                                width: 16,
-                                height: 16,
-                                decoration: BoxDecoration(
-                                  color: Colors.green,
-                                  shape: BoxShape.circle,
-                                  border: Border.all(color: Colors.white, width: 2),
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'User $index',
-                        style: const TextStyle(fontSize: 12),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
-          ),
-
-          const Divider(height: 1),
-
-          // Conversations
+          // Conversations List
           Expanded(
-            child: ListView.builder(
-              itemCount: 20,
-              itemBuilder: (context, index) {
-                return ListTile(
-                  leading: CircleAvatar(
-                    radius: 28,
-                    backgroundImage: NetworkImage('https://randomuser.me/api/portraits/thumb/women/${index + 30}.jpg'),
-                  ),
-                  title: Text(
-                    'Amigo ${index + 1}',
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  subtitle: Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          index % 2 == 0
-                              ? '¿Vamos a correr mañana? 🏃‍♂️'
-                              : '¡Genial! Nos vemos ahí.',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: index < 3 ? Colors.black : Colors.grey,
-                            fontWeight: index < 3 ? FontWeight.bold : FontWeight.normal,
-                          ),
+            child: BlocBuilder<ChatBloc, ChatState>(
+              builder: (context, state) {
+                if (state is ChatLoading) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (state is ChatLoaded) {
+                  if (state.conversations.isEmpty) {
+                    return const Center(child: Text('No tienes mensajes'));
+                  }
+                  return ListView.builder(
+                    itemCount: state.conversations.length,
+                    itemBuilder: (context, index) {
+                      final conversation = state.conversations[index];
+                      return _buildConversationItem(context, conversation);
+                    },
+                  );
+                } else if (state is ChatError) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text('Error al cargar mensajes'),
+                        ElevatedButton(
+                          onPressed: () => context.read<ChatBloc>().add(LoadConversations()),
+                          child: const Text('Reintentar'),
                         ),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        '${index + 2}m',
-                        style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
-                      ),
-                    ],
-                  ),
-                  trailing: index < 3
-                      ? Container(
-                          width: 10,
-                          height: 10,
-                          decoration: const BoxDecoration(
-                            color: Colors.blue,
-                            shape: BoxShape.circle,
-                          ),
-                        )
-                      : null,
-                  onTap: () {},
-                );
+                      ],
+                    ),
+                  );
+                }
+                return const SizedBox();
               },
             ),
           ),
         ],
       ),
     );
+  }
+
+  Widget _buildConversationItem(BuildContext context, Conversation conversation) {
+    return ListTile(
+      leading: CircleAvatar(
+        radius: 28,
+        backgroundImage: conversation.userImage.isNotEmpty
+            ? NetworkImage(conversation.userImage)
+            : null,
+        child: conversation.userImage.isEmpty ? const Icon(Icons.person) : null,
+      ),
+      title: Text(
+        conversation.userName,
+        style: const TextStyle(fontWeight: FontWeight.bold),
+      ),
+      subtitle: Row(
+        children: [
+          Expanded(
+            child: Text(
+              conversation.lastMessage,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: conversation.unreadCount > 0 ? Colors.black : Colors.grey,
+                fontWeight: conversation.unreadCount > 0 ? FontWeight.bold : FontWeight.normal,
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            _formatTime(conversation.lastMessageTime),
+            style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+          ),
+        ],
+      ),
+      trailing: conversation.unreadCount > 0
+          ? Container(
+              width: 10,
+              height: 10,
+              decoration: const BoxDecoration(
+                color: Colors.blue,
+                shape: BoxShape.circle,
+              ),
+            )
+          : null,
+      onTap: () {
+        context.push('/messages/${conversation.id}', extra: conversation);
+      },
+    );
+  }
+
+  String _formatTime(DateTime time) {
+    return "${time.hour}:${time.minute}";
   }
 }
