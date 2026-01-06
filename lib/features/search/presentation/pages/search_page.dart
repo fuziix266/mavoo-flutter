@@ -49,6 +49,14 @@ class _SearchPageState extends State<SearchPage>
     super.dispose();
   }
 
+  String? _getUserId() {
+    final state = context.read<AuthBloc>().state;
+    if (state is AuthAuthenticated) {
+      return state.user.id;
+    }
+    return null;
+  }
+
   void _onSearchChanged() {
     if (_searchController.text.isEmpty) {
       setState(() {
@@ -74,9 +82,11 @@ class _SearchPageState extends State<SearchPage>
     if (userId == null) return;
 
     final history = await _searchRepository.getHistory(userId, limit: 10);
-    setState(() {
-      _recentSearches = history;
-    });
+    if (mounted) {
+      setState(() {
+        _recentSearches = history;
+      });
+    }
   }
 
   Future<void> _performSearch() async {
@@ -85,6 +95,9 @@ class _SearchPageState extends State<SearchPage>
 
     final query = _searchController.text.trim();
     if (query.isEmpty) return;
+
+    final userId = _getUserId();
+    if (userId == null) return;
 
     setState(() {
       _isLoading = true;
@@ -108,11 +121,13 @@ class _SearchPageState extends State<SearchPage>
         resultsCount: results.people.length + results.events.length,
       );
 
-      setState(() {
-        _searchResults = results;
-        _isLoading = false;
-        _showResults = true;
-      });
+      if (mounted) {
+        setState(() {
+          _searchResults = results;
+          _isLoading = false;
+          _showResults = true;
+        });
+      }
     } catch (e) {
       setState(() {
         _isLoading = false;
@@ -392,11 +407,15 @@ class _SearchPageState extends State<SearchPage>
             if (_recentSearches.isNotEmpty)
               TextButton(
                 onPressed: () async {
+                  final userId = _getUserId();
+                  if (userId == null) return;
+
                   final result = await Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => SearchHistoryPage(
                         searchRepository: _searchRepository,
+                        userId: userId,
                       ),
                     ),
                   );

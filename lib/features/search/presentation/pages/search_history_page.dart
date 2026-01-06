@@ -5,8 +5,13 @@ import '../../data/repositories/search_repository.dart';
 
 class SearchHistoryPage extends StatefulWidget {
   final SearchRepository searchRepository;
+  final String userId;
 
-  const SearchHistoryPage({Key? key, required this.searchRepository}) : super(key: key);
+  const SearchHistoryPage({
+    Key? key,
+    required this.searchRepository,
+    required this.userId,
+  }) : super(key: key);
 
   @override
   State<SearchHistoryPage> createState() => _SearchHistoryPageState();
@@ -27,7 +32,8 @@ class _SearchHistoryPageState extends State<SearchHistoryPage> {
       _isLoading = true;
     });
     // Load more items for the full history page
-    final history = await widget.searchRepository.getHistory(limit: 50);
+    final history =
+        await widget.searchRepository.getHistory(widget.userId, limit: 50);
     setState(() {
       _history = history;
       _isLoading = false;
@@ -35,14 +41,15 @@ class _SearchHistoryPageState extends State<SearchHistoryPage> {
   }
 
   Future<void> _deleteItem(int id) async {
-    final success = await widget.searchRepository.deleteHistory(id);
+    final success =
+        await widget.searchRepository.deleteHistory(widget.userId, id);
     if (success) {
       _loadHistory();
     }
   }
 
   Future<void> _clearAll() async {
-    final success = await widget.searchRepository.clearHistory();
+    final success = await widget.searchRepository.clearHistory(widget.userId);
     if (success) {
       _loadHistory();
     }
@@ -61,7 +68,10 @@ class _SearchHistoryPageState extends State<SearchHistoryPage> {
         ),
         title: const Text(
           'Historial de búsqueda',
-          style: TextStyle(color: AppColors.textPrimary, fontSize: 16, fontWeight: FontWeight.bold),
+          style: TextStyle(
+              color: AppColors.textPrimary,
+              fontSize: 16,
+              fontWeight: FontWeight.bold),
         ),
         actions: [
           if (_history.isNotEmpty)
@@ -90,7 +100,9 @@ class _SearchHistoryPageState extends State<SearchHistoryPage> {
                     final item = _history[index];
                     return ListTile(
                       leading: Icon(
-                        item.searchType == SearchType.people ? Icons.person : Icons.event,
+                        item.searchType == SearchType.people
+                            ? Icons.person
+                            : Icons.event,
                         color: AppColors.textSecondary,
                       ),
                       title: Text(item.searchQuery),
