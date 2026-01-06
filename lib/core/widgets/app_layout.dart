@@ -79,7 +79,6 @@ class _AppLayoutState extends State<AppLayout> {
     final pagesWithOwnScaffold = [
       '/search',
       '/settings',
-      '/add-post',
       '/edit-profile',
       '/events/all',
       '/profile',

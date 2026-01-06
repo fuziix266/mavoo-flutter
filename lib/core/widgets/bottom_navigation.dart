@@ -63,6 +63,7 @@ class BottomNavigation extends StatelessWidget {
                 label: 'Post',
                 isActive: false,
                 onTap: () {
+                  // Open create post dialog
                   context.push('/add-post');
                 },
               ),
