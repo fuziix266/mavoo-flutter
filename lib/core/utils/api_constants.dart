@@ -5,9 +5,10 @@ class ApiConstants {
   static const String _localUrl = 'http://localhost:8000';
   
   // URL de producción - usar IP del servidor
+  // Ajustado a la IP proporcionada por el usuario
   static const String _prodUrl = String.fromEnvironment(
     'API_URL', 
-    defaultValue: 'https://retrobox.cl/api'
+    defaultValue: 'http://62.146.181.70:3000/api'
   );
 
   // Selecciona automáticamente la URL según la plataforma
@@ -16,7 +17,8 @@ class ApiConstants {
   static String get baseUrl {
     if (kIsWeb) {
       // En web siempre usar localhost para desarrollo
-      return _localUrl;
+      // A menos que estemos en producción
+      return const String.fromEnvironment('API_URL', defaultValue: _localUrl);
     } else {
       // En móvil usar producción
       return _prodUrl;
