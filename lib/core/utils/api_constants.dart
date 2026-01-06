@@ -4,11 +4,11 @@ class ApiConstants {
   // URLs por entorno
   static const String _localUrl = 'http://localhost:8000';
   
-  // URL de producción - usar IP del servidor
-  // Ajustado a la IP proporcionada por el usuario
+  // URL de producción
+  // Domain resolves to 62.146.181.70 and Traefik requires the Host header 'retrobox.cl'
   static const String _prodUrl = String.fromEnvironment(
     'API_URL', 
-    defaultValue: 'http://62.146.181.70:3000/api'
+    defaultValue: 'https://retrobox.cl/api'
   );
 
   // Selecciona automáticamente la URL según la plataforma
@@ -17,7 +17,6 @@ class ApiConstants {
   static String get baseUrl {
     if (kIsWeb) {
       // En web siempre usar localhost para desarrollo
-      // A menos que estemos en producción
       return const String.fromEnvironment('API_URL', defaultValue: _localUrl);
     } else {
       // En móvil usar producción

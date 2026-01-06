@@ -1,28 +1,27 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
+import '../../../../core/utils/api_client.dart';
 import '../models/search_history_model.dart';
 import '../models/search_results_model.dart';
 
 class SearchRepository {
-  final String baseUrl;
+  final ApiClient apiClient;
 
-  SearchRepository({required this.baseUrl});
+  SearchRepository({required this.apiClient});
 
   /// Unified search across multiple types
   Future<SearchResults> search(String query, SearchType type) async {
     try {
-      final response = await http.post(
-        Uri.parse('$baseUrl/content/search/query'),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({
+      final response = await apiClient.dio.post(
+        '/content/search/query',
+        data: {
           'user_id': 1, // TODO: Get from auth
           'query': query,
           'type': _searchTypeToString(type),
-        }),
+        },
       );
 
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+        final data = response.data;
         if (data['response_code'] == '1') {
           return SearchResults.fromJson(data);
         }
@@ -41,19 +40,17 @@ class SearchRepository {
     int limit = 10,
   }) async {
     try {
-      final queryParams = {
-        'user_id': '1', // TODO: Get from auth
-        'type': type != null ? _searchTypeToString(type) : 'all',
-        'limit': limit.toString(),
-      };
-
-      final uri = Uri.parse('$baseUrl/content/search/history')
-          .replace(queryParameters: queryParams);
-
-      final response = await http.get(uri);
+      final response = await apiClient.dio.get(
+        '/content/search/history',
+        queryParameters: {
+          'user_id': 1, // TODO: Get from auth
+          'type': type != null ? _searchTypeToString(type) : 'all',
+          'limit': limit,
+        },
+      );
 
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+        final data = response.data;
         if (data['response_code'] == '1') {
           final List<dynamic> historyJson = data['history'] ?? [];
           return historyJson
@@ -78,17 +75,16 @@ class SearchRepository {
     int resultsCount = 0,
   }) async {
     try {
-      await http.post(
-        Uri.parse('$baseUrl/content/search/history/add'),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({
+      await apiClient.dio.post(
+        '/content/search/history/add',
+        data: {
           'user_id': 1, // TODO: Get from auth
           'query': query,
           'type': _searchTypeToString(type),
           if (resultId != null) 'result_id': resultId,
           if (resultType != null) 'result_type': _resultTypeToString(resultType),
           'results_count': resultsCount,
-        }),
+        },
       );
     } catch (e) {
       print('Error adding to history: $e');
@@ -98,13 +94,13 @@ class SearchRepository {
   /// Delete specific search history item (soft delete)
   Future<bool> deleteHistory(int historyId) async {
     try {
-      final uri = Uri.parse('$baseUrl/content/search/history/$historyId')
-          .replace(queryParameters: {'user_id': '1'}); // TODO: Get from auth
-
-      final response = await http.delete(uri);
+      final response = await apiClient.dio.delete(
+        '/content/search/history/$historyId',
+        queryParameters: {'user_id': 1}, // TODO: Get from auth
+      );
 
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+        final data = response.data;
         return data['response_code'] == '1';
       }
 
@@ -118,18 +114,16 @@ class SearchRepository {
   /// Clear all history (soft delete)
   Future<bool> clearHistory({SearchType? type}) async {
     try {
-      final queryParams = {
-        'user_id': '1', // TODO: Get from auth
-        'type': type != null ? _searchTypeToString(type) : 'all',
-      };
-
-      final uri = Uri.parse('$baseUrl/content/search/history/clear')
-          .replace(queryParameters: queryParams);
-
-      final response = await http.delete(uri);
+      final response = await apiClient.dio.delete(
+        '/content/search/history/clear',
+        queryParameters: {
+          'user_id': 1, // TODO: Get from auth
+          'type': type != null ? _searchTypeToString(type) : 'all',
+        },
+      );
 
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+        final data = response.data;
         return data['response_code'] == '1';
       }
 

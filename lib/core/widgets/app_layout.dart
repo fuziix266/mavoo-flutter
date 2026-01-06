@@ -27,6 +27,44 @@ class _AppLayoutState extends State<AppLayout> {
     setState(() {
       _currentIndex = index;
     });
+    // Add navigation logic for mobile bottom bar actions
+    switch (index) {
+      case 0:
+        if (GoRouterState.of(context).matchedLocation != '/home') {
+          context.go('/home');
+        }
+        break;
+      case 1:
+        if (GoRouterState.of(context).matchedLocation != '/events') {
+          // Assuming /events is mapped, if not map it or use /home with index logic
+           // context.go('/events');
+           // For now internal logic handles it if we stay on /home but change content
+        }
+        break;
+      // Index 2 is Strava/Explore, handled in BottomNavigation
+      // Index 3 is Profile, handled in BottomNavigation
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _syncIndexWithRoute();
+  }
+
+  void _syncIndexWithRoute() {
+    final location = GoRouterState.of(context).matchedLocation;
+    int newIndex = _currentIndex;
+    if (location.startsWith('/home')) newIndex = 0;
+    else if (location.startsWith('/events') && !location.startsWith('/events/all')) newIndex = 1; // Assuming events tab
+    else if (location.startsWith('/explore') || location.startsWith('/strava')) newIndex = 2;
+    else if (location.startsWith('/profile')) newIndex = 3;
+
+    if (newIndex != _currentIndex) {
+      setState(() {
+        _currentIndex = newIndex;
+      });
+    }
   }
 
   Widget _getMainContent() {

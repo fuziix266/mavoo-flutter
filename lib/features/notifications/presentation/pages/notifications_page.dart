@@ -1,7 +1,37 @@
 import 'package:flutter/material.dart';
 
-class NotificationsPage extends StatelessWidget {
+import '../../data/repositories/notification_repository.dart';
+import '../../data/models/notification_model.dart';
+import '../../../../core/utils/api_client.dart';
+
+class NotificationsPage extends StatefulWidget {
   const NotificationsPage({Key? key}) : super(key: key);
+
+  @override
+  State<NotificationsPage> createState() => _NotificationsPageState();
+}
+
+class _NotificationsPageState extends State<NotificationsPage> {
+  late NotificationRepository _repository;
+  List<NotificationModel> _notifications = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _repository = NotificationRepository(apiClient: ApiClient());
+    _loadNotifications();
+  }
+
+  Future<void> _loadNotifications() async {
+    final list = await _repository.getNotifications();
+    if (mounted) {
+      setState(() {
+        _notifications = list;
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
