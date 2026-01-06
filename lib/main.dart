@@ -17,6 +17,8 @@ import 'features/strava/presentation/pages/strava_callback_page.dart';
 import 'features/profile/presentation/pages/profile_page.dart';
 import 'features/notifications/presentation/pages/notifications_page.dart';
 import 'features/messages/presentation/pages/messages_page.dart';
+import 'features/messages/presentation/pages/chat_detail_page.dart';
+import 'features/messages/data/models/chat_model.dart';
 import 'features/reels/presentation/pages/reels_page.dart';
 import 'features/posts/presentation/pages/add_post_page.dart';
 import 'features/activity/presentation/pages/my_activity_page.dart';
@@ -132,6 +134,17 @@ GoRouter _createRouter(BuildContext context) {
           GoRoute(
             path: '/messages',
             builder: (context, state) => const MessagesPage(),
+          ),
+          GoRoute(
+            path: '/messages/:id',
+            builder: (context, state) {
+              final chat = state.extra as ChatModel;
+              return ChatDetailPage(
+                chatId: chat.id,
+                username: chat.username,
+                profilePic: chat.userProfilePic,
+              );
+            },
           ),
           GoRoute(
             path: '/reels',

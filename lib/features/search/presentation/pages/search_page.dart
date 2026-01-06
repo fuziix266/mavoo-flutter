@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:shimmer/shimmer.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/utils/api_client.dart';
 import '../../data/models/search_history_model.dart';
 import '../../data/models/search_results_model.dart';
 import '../../data/repositories/search_repository.dart';
@@ -22,13 +24,14 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
   SearchResults? _searchResults;
   bool _isLoading = false;
   bool _showResults = false;
+  bool _hasError = false;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
     _searchController = TextEditingController();
-    _searchRepository = SearchRepository(baseUrl: 'http://localhost:8000');
+    _searchRepository = SearchRepository(apiClient: ApiClient());
     _loadRecentSearches();
     
     _searchController.addListener(_onSearchChanged);
@@ -46,6 +49,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
       setState(() {
         _showResults = false;
         _searchResults = null;
+        _hasError = false;
       });
     } else {
       _performSearch();
@@ -65,6 +69,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
 
     setState(() {
       _isLoading = true;
+      _hasError = false;
     });
 
     final type = _tabController.index == 0
@@ -73,20 +78,27 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
             ? SearchType.people
             : SearchType.events;
 
-    final results = await _searchRepository.search(query, type);
-    
-    // Add to history
-    await _searchRepository.addToHistory(
-      query,
-      type,
-      resultsCount: results.people.length + results.events.length,
-    );
+    try {
+      final results = await _searchRepository.search(query, type);
 
-    setState(() {
-      _searchResults = results;
-      _isLoading = false;
-      _showResults = true;
-    });
+      // Add to history
+      await _searchRepository.addToHistory(
+        query,
+        type,
+        resultsCount: results.people.length + results.events.length,
+      );
+
+      setState(() {
+        _searchResults = results;
+        _isLoading = false;
+        _showResults = true;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        _hasError = true;
+      });
+    }
   }
 
   Future<void> _deleteSearch(int id) async {
@@ -154,7 +166,27 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
 
   Widget _buildSearchResults() {
     if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return _buildShimmerLoading();
+    }
+
+    if (_hasError) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.error_outline, size: 64, color: Colors.red.withOpacity(0.5)),
+            const SizedBox(height: 16),
+            const Text(
+              'Ocurrió un error al buscar.',
+              style: TextStyle(color: AppColors.textSecondary),
+            ),
+            TextButton(
+              onPressed: _performSearch,
+              child: const Text('Reintentar'),
+            ),
+          ],
+        ),
+      );
     }
 
     if (_searchResults == null || _searchResults!.isEmpty) {
@@ -165,7 +197,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
             Icon(Icons.search_off, size: 64, color: AppColors.textSecondary.withOpacity(0.5)),
             const SizedBox(height: 16),
             const Text(
-              'No se encontraron resultados',
+              'No encontramos deportistas ni eventos.',
               style: TextStyle(color: AppColors.textSecondary),
             ),
           ],
@@ -180,6 +212,61 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
         _buildPeopleResults(),
         _buildEventsResults(),
       ],
+    );
+  }
+
+  Widget _buildShimmerLoading() {
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: 6,
+      itemBuilder: (_, __) => Padding(
+        padding: const EdgeInsets.only(bottom: 16.0),
+        child: Shimmer.fromColors(
+          baseColor: Colors.grey[300]!,
+          highlightColor: Colors.grey[100]!,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 48.0,
+                height: 48.0,
+                color: Colors.white,
+              ),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 8.0),
+              ),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: double.infinity,
+                      height: 8.0,
+                      color: Colors.white,
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 2.0),
+                    ),
+                    Container(
+                      width: double.infinity,
+                      height: 8.0,
+                      color: Colors.white,
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 2.0),
+                    ),
+                    Container(
+                      width: 40.0,
+                      height: 8.0,
+                      color: Colors.white,
+                    ),
+                  ],
+                ),
+              )
+            ],
+          ),
+        ),
+      ),
     );
   }
 

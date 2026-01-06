@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:cached_network_image/cached_network_image.dart';
 import '../../../../features/auth/presentation/bloc/auth_bloc.dart';
 import 'login_theme.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -188,6 +189,8 @@ class _LoginPageState extends State<LoginPage> {
           listener: (context, state) {
             if (state is AuthAuthenticated) {
               context.go('/home');
+            } else if (state is AuthUserDataMismatch) {
+              _showProfileSyncDialog(context, state);
             }
           },
           child: BlocBuilder<AuthBloc, AuthState>(
@@ -387,6 +390,70 @@ class _LoginPageState extends State<LoginPage> {
            ),
         ),
      );
+  }
+
+  void _showProfileSyncDialog(BuildContext context, AuthUserDataMismatch state) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: Text('Actualizar Perfil', style: GoogleFonts.poppins(fontWeight: FontWeight.bold)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('Hemos detectado que tu foto de Google es diferente a la de Mavoo.', style: GoogleFonts.poppins()),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                Column(
+                  children: [
+                    const Text("Mavoo"),
+                    const SizedBox(height: 8),
+                    CircleAvatar(
+                      backgroundImage: state.user.profileImage != null
+                          ? CachedNetworkImageProvider(state.user.profileImage!)
+                          : null,
+                      child: state.user.profileImage == null ? const Icon(Icons.person) : null,
+                    ),
+                  ],
+                ),
+                const Icon(Icons.arrow_forward),
+                Column(
+                  children: [
+                    const Text("Google"),
+                    const SizedBox(height: 8),
+                    CircleAvatar(
+                      backgroundImage: CachedNetworkImageProvider(state.googleData['profile_pic']),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Text('¿Deseas sincronizar tu perfil con los datos de Google?', style: GoogleFonts.poppins()),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context); // Close dialog
+              // Proceed with existing data
+              context.read<AuthBloc>().add(AuthSyncProfileConfirmed(state.user, {})); // Empty map means no change
+            },
+            child: const Text('No, mantener actual'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              // Sync
+              context.read<AuthBloc>().add(AuthSyncProfileConfirmed(state.user, state.googleData));
+            },
+            child: const Text('Sí, sincronizar'),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _handleGoogleSignIn() async {
