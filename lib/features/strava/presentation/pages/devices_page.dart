@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_web_auth_2/flutter_web_auth_2.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../../core/utils/api_constants.dart';
 import '../../data/models/strava_athlete_model.dart';
 import '../../data/models/strava_activity_model.dart';
@@ -20,20 +22,38 @@ class _DevicesPageState extends State<DevicesPage> {
   StravaAthlete? _athlete;
   List<StravaActivity> _activities = [];
   String? _lastSync;
-  final int _userId = 1; // TODO: Get from auth
+  int? _userId;
 
   @override
   void initState() {
     super.initState();
     _stravaRepository = StravaRepository(baseUrl: ApiConstants.baseUrl);
-    _loadConnectionStatus();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeUser();
+    });
+  }
+
+  void _initializeUser() {
+    final authState = context.read<AuthBloc>().state;
+    if (authState is AuthAuthenticated) {
+      try {
+        _userId = int.parse(authState.user.id);
+        _loadConnectionStatus();
+      } catch (e) {
+        print('Error parsing user ID: $e');
+        setState(() => _isLoading = false);
+      }
+    } else {
+      setState(() => _isLoading = false);
+    }
   }
 
   Future<void> _loadConnectionStatus() async {
+    if (_userId == null) return;
     setState(() => _isLoading = true);
 
     try {
-      final athleteData = await _stravaRepository.getAthlete(_userId);
+      final athleteData = await _stravaRepository.getAthlete(_userId!);
       
       if (athleteData != null) {
         setState(() {
@@ -56,8 +76,9 @@ class _DevicesPageState extends State<DevicesPage> {
   }
 
   Future<void> _loadActivities() async {
+    if (_userId == null) return;
     try {
-      final activities = await _stravaRepository.getActivities(_userId, perPage: 10);
+      final activities = await _stravaRepository.getActivities(_userId!, perPage: 10);
       setState(() {
         _activities = activities;
       });
@@ -67,10 +88,14 @@ class _DevicesPageState extends State<DevicesPage> {
   }
 
   Future<void> _connectStrava() async {
+    if (_userId == null) {
+      _showError('Usuario no identificado');
+      return;
+    }
     setState(() => _isLoading = true);
     
     try {
-      final authUrl = await _stravaRepository.getAuthorizationUrl(_userId);
+      final authUrl = await _stravaRepository.getAuthorizationUrl(_userId!);
       
       if (authUrl != null) {
         // Use FlutterWebAuth2 for in-app browser (Custom Tabs/Safari View Controller)
@@ -85,7 +110,7 @@ class _DevicesPageState extends State<DevicesPage> {
         
         if (code != null) {
           // Exchange code for tokens
-          final athlete = await _stravaRepository.exchangeCode(code, _userId);
+          final athlete = await _stravaRepository.exchangeCode(code, _userId!);
           
           if (athlete != null) {
             _showSuccess('¡Strava conectado exitosamente!');
@@ -111,6 +136,7 @@ class _DevicesPageState extends State<DevicesPage> {
   }
 
   Future<void> _disconnect() async {
+    if (_userId == null) return;
     final confirmed = await _showConfirmDialog(
       'Desconectar Strava',
       '¿Estás seguro de que quieres desconectar tu cuenta de Strava?',
@@ -119,7 +145,7 @@ class _DevicesPageState extends State<DevicesPage> {
     if (confirmed == true) {
       setState(() => _isLoading = true);
 
-      final success = await _stravaRepository.disconnect(_userId);
+      final success = await _stravaRepository.disconnect(_userId!);
       
       if (success) {
         setState(() {
