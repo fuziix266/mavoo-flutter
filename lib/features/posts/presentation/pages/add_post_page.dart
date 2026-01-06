@@ -31,7 +31,10 @@ class _AddPostPageState extends State<AddPostPage> {
         actions: [
           TextButton(
             onPressed: () {
-               // TODO: Post logic
+               // TODO: Post logic - for now just close and show feedback
+               ScaffoldMessenger.of(context).showSnackBar(
+                 const SnackBar(content: Text('Publicando...')),
+               );
                Navigator.pop(context);
             },
             child: const Text(

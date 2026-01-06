@@ -102,6 +102,13 @@ GoRouter _createRouter(BuildContext context) {
         path: '/strava/callback',
         builder: (context, state) => const StravaCallbackPage(),
       ),
+      GoRoute(
+        path: '/add-post',
+        pageBuilder: (context, state) => const MaterialPage(
+          fullscreenDialog: true,
+          child: AddPostPage(),
+        ),
+      ),
       ShellRoute(
         builder: (context, state, child) {
           return AppLayout(child: child);
@@ -118,10 +125,6 @@ GoRouter _createRouter(BuildContext context) {
           GoRoute(
             path: '/explore',
             builder: (context, state) => const DevicesPage(),
-          ),
-          GoRoute(
-            path: '/add-post',
-            builder: (context, state) => const AddPostPage(),
           ),
           GoRoute(
             path: '/my-activity',
