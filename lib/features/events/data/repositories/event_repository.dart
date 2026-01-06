@@ -1,20 +1,18 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
+import '../../../../core/utils/api_client.dart';
 import '../models/event_model.dart';
 
 class EventRepository {
-  final String baseUrl;
+  final ApiClient apiClient;
 
-  EventRepository({required this.baseUrl});
+  EventRepository({required this.apiClient});
 
   Future<List<Event>> getUpcomingEvents() async {
     try {
-      final response = await http.get(
-        Uri.parse('$baseUrl/content/event/upcoming'),
-      );
+      final response = await apiClient.dio.get('/content/event/upcoming');
 
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+        final data = response.data;
         if (data['success'] == true) {
           final List<dynamic> eventsJson = data['events'] as List;
           return eventsJson.map((json) => Event.fromJson(json)).toList();
@@ -27,17 +25,32 @@ class EventRepository {
     }
   }
 
-  Future<bool> registerForEvent(int eventId, int userId) async {
+  Future<Event?> getEventById(int eventId) async {
     try {
-      final response = await http.post(
-        Uri.parse('$baseUrl/content/event/$eventId/register'),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({'user_id': userId}),
+      final response = await apiClient.dio.get('/content/event/$eventId');
+
+      if (response.statusCode == 200) {
+        final data = response.data;
+        if (data['success'] == true) {
+          return Event.fromJson(data['event']);
+        }
+      }
+      return null;
+    } catch (e) {
+      print('Error fetching event details: $e');
+      return null;
+    }
+  }
+
+  Future<bool> registerForEvent(int eventId, String userId) async {
+    try {
+      final response = await apiClient.dio.post(
+        '/content/event/$eventId/register',
+        data: {'user_id': int.tryParse(userId) ?? userId},
       );
 
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        return data['success'] == true;
+        return response.data['success'] == true;
       }
       return false;
     } catch (e) {
@@ -46,17 +59,15 @@ class EventRepository {
     }
   }
 
-  Future<bool> unregisterFromEvent(int eventId, int userId) async {
+  Future<bool> unregisterFromEvent(int eventId, String userId) async {
     try {
-      final response = await http.post(
-        Uri.parse('$baseUrl/content/event/$eventId/unregister'),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({'user_id': userId}),
+      final response = await apiClient.dio.post(
+        '/content/event/$eventId/unregister',
+        data: {'user_id': int.tryParse(userId) ?? userId},
       );
 
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        return data['success'] == true;
+        return response.data['success'] == true;
       }
       return false;
     } catch (e) {

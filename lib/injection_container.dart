@@ -16,6 +16,7 @@ import '../../features/feed/data/repositories/feed_repository_impl.dart';
 import '../../features/feed/domain/repositories/feed_repository.dart';
 import '../../features/feed/domain/usecases/get_posts_usecase.dart';
 import '../../features/feed/presentation/bloc/feed_bloc.dart';
+import '../../features/events/data/repositories/event_repository.dart';
 import 'core/utils/api_client.dart';
 
 final sl = GetIt.instance;
@@ -51,6 +52,9 @@ Future<void> init() async {
   );
   sl.registerLazySingleton<FeedRepository>(
     () => FeedRepositoryImpl(remoteDataSource: sl()),
+  );
+  sl.registerLazySingleton<EventRepository>(
+    () => EventRepository(apiClient: sl()),
   );
 
   // Use Cases
