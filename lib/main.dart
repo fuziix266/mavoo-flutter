@@ -17,8 +17,11 @@ import 'features/strava/presentation/pages/strava_callback_page.dart';
 import 'features/profile/presentation/pages/profile_page.dart';
 import 'features/notifications/presentation/pages/notifications_page.dart';
 import 'features/messages/presentation/pages/messages_page.dart';
+import 'features/messages/presentation/pages/chat_detail_page.dart';
+import 'features/messages/data/models/message_model.dart';
 import 'features/reels/presentation/pages/reels_page.dart';
 import 'features/posts/presentation/pages/add_post_page.dart';
+import 'features/feed/presentation/pages/post_detail_page.dart';
 import 'features/activity/presentation/pages/my_activity_page.dart';
 import 'features/profile/presentation/pages/edit_profile_page.dart';
 import 'features/widgets/presentation/pages/widgets_selection_page.dart';
@@ -122,6 +125,13 @@ GoRouter _createRouter(BuildContext context) {
             builder: (context, state) => const AddPostPage(),
           ),
           GoRoute(
+            path: '/posts/:id',
+            builder: (context, state) {
+               final postId = int.parse(state.pathParameters['id']!);
+               return PostDetailPage(postId: postId);
+            },
+          ),
+          GoRoute(
             path: '/my-activity',
             builder: (context, state) => const MyActivityPage(),
           ),
@@ -132,6 +142,19 @@ GoRouter _createRouter(BuildContext context) {
           GoRoute(
             path: '/messages',
             builder: (context, state) => const MessagesPage(),
+          ),
+          GoRoute(
+            path: '/messages/:id',
+            builder: (context, state) {
+               final conversationId = int.parse(state.pathParameters['id']!);
+               final extra = state.extra as Conversation?;
+               return ChatDetailPage(
+                 conversationId: conversationId,
+                 partnerId: extra?.userId ?? 0, // Ensure partnerId is passed
+                 userName: extra?.userName ?? 'Chat',
+                 userImage: extra?.userImage,
+               );
+            },
           ),
           GoRoute(
             path: '/reels',

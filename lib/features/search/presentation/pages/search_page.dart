@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../injection_container.dart'; // Import SL
 import '../../../../core/theme/app_theme.dart';
 import '../../data/models/search_history_model.dart';
 import '../../data/models/search_results_model.dart';
@@ -22,13 +23,14 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
   SearchResults? _searchResults;
   bool _isLoading = false;
   bool _showResults = false;
+  String? _errorMessage;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
     _searchController = TextEditingController();
-    _searchRepository = SearchRepository(baseUrl: 'http://localhost:8000');
+    _searchRepository = sl<SearchRepository>(); // Use SL
     _loadRecentSearches();
     
     _searchController.addListener(_onSearchChanged);
@@ -46,6 +48,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
       setState(() {
         _showResults = false;
         _searchResults = null;
+        _errorMessage = null;
       });
     } else {
       _performSearch();
@@ -54,9 +57,11 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
 
   Future<void> _loadRecentSearches() async {
     final history = await _searchRepository.getHistory(limit: 10);
-    setState(() {
-      _recentSearches = history;
-    });
+    if (mounted) {
+      setState(() {
+        _recentSearches = history;
+      });
+    }
   }
 
   Future<void> _performSearch() async {
@@ -65,6 +70,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
 
     setState(() {
       _isLoading = true;
+      _errorMessage = null;
     });
 
     final type = _tabController.index == 0
@@ -73,20 +79,32 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
             ? SearchType.people
             : SearchType.events;
 
-    final results = await _searchRepository.search(query, type);
-    
-    // Add to history
-    await _searchRepository.addToHistory(
-      query,
-      type,
-      resultsCount: results.people.length + results.events.length,
-    );
+    try {
+      final results = await _searchRepository.search(query, type);
 
-    setState(() {
-      _searchResults = results;
-      _isLoading = false;
-      _showResults = true;
-    });
+      // Add to history
+      await _searchRepository.addToHistory(
+        query,
+        type,
+        resultsCount: results.people.length + results.events.length,
+      );
+
+      if (mounted) {
+        setState(() {
+          _searchResults = results;
+          _isLoading = false;
+          _showResults = true;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _errorMessage = "Error de conexión";
+          _showResults = true; // Show error UI
+        });
+      }
+    }
   }
 
   Future<void> _deleteSearch(int id) async {
@@ -155,6 +173,24 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
   Widget _buildSearchResults() {
     if (_isLoading) {
       return const Center(child: CircularProgressIndicator());
+    }
+
+    if (_errorMessage != null) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.error_outline, size: 48, color: Colors.red),
+            const SizedBox(height: 16),
+            Text(_errorMessage!, style: const TextStyle(color: AppColors.textSecondary)),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: _performSearch,
+              child: const Text('Reintentar'),
+            ),
+          ],
+        ),
+      );
     }
 
     if (_searchResults == null || _searchResults!.isEmpty) {

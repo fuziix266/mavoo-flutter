@@ -16,6 +16,11 @@ import '../../features/feed/data/repositories/feed_repository_impl.dart';
 import '../../features/feed/domain/repositories/feed_repository.dart';
 import '../../features/feed/domain/usecases/get_posts_usecase.dart';
 import '../../features/feed/presentation/bloc/feed_bloc.dart';
+import '../../features/search/data/repositories/search_repository.dart';
+import '../../features/messages/data/repositories/message_repository.dart';
+import '../../features/messages/presentation/bloc/chat_bloc.dart';
+import '../../features/notifications/data/repositories/notification_repository.dart';
+import '../../features/notifications/presentation/bloc/notification_bloc.dart';
 import 'core/utils/api_client.dart';
 
 final sl = GetIt.instance;
@@ -52,6 +57,15 @@ Future<void> init() async {
   sl.registerLazySingleton<FeedRepository>(
     () => FeedRepositoryImpl(remoteDataSource: sl()),
   );
+  sl.registerLazySingleton<SearchRepository>(
+    () => SearchRepository(),
+  );
+  sl.registerLazySingleton<MessageRepository>(
+    () => MessageRepository(apiClient: sl()),
+  );
+  sl.registerLazySingleton<NotificationRepository>(
+    () => NotificationRepository(apiClient: sl()),
+  );
 
   // Use Cases
   sl.registerLazySingleton(() => LoginUseCase(sl()));
@@ -72,4 +86,13 @@ Future<void> init() async {
 
   // Features - Feed Bloc
   sl.registerFactory(() => FeedBloc(getPostsUseCase: sl()));
+
+  // Features - Chat Bloc
+  sl.registerFactory(() => ChatBloc(
+    repository: sl(),
+    authRepository: sl(), // Correctly injecting repository
+  ));
+
+  // Features - Notification Bloc
+  sl.registerFactory(() => NotificationBloc(repository: sl()));
 }
