@@ -7,6 +7,7 @@ import '../../../../core/utils/api_client.dart';
 import '../../data/models/search_history_model.dart';
 import '../../data/models/search_results_model.dart';
 import '../../data/repositories/search_repository.dart';
+import 'search_history_page.dart';
 import '../../../events/data/models/event_model.dart';
 import '../../../auth/data/models/user_model.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
@@ -390,8 +391,22 @@ class _SearchPageState extends State<SearchPage>
             ),
             if (_recentSearches.isNotEmpty)
               TextButton(
-                onPressed: () {
-                  // TODO: Navigate to full history page
+                onPressed: () async {
+                  final result = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => SearchHistoryPage(
+                        searchRepository: _searchRepository,
+                      ),
+                    ),
+                  );
+
+                  if (result != null && result is String) {
+                    _searchController.text = result;
+                    _performSearch();
+                  } else {
+                    _loadRecentSearches();
+                  }
                 },
                 child: const Text('Editar'),
               ),
