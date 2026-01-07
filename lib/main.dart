@@ -8,6 +8,7 @@ import 'features/home/presentation/pages/home_page.dart';
 import 'core/widgets/app_layout.dart';
 import 'core/widgets/placeholder_page.dart';
 import 'features/settings/presentation/pages/settings_page.dart';
+import 'features/help/presentation/pages/help_page.dart';
 import 'features/events/presentation/pages/all_events_page.dart';
 import 'features/events/presentation/pages/event_detail_page.dart';
 import 'features/events/data/models/event_model.dart';
@@ -161,6 +162,10 @@ GoRouter _createRouter(BuildContext context) {
           GoRoute(
             path: '/settings',
             builder: (context, state) => const SettingsPage(),
+          ),
+          GoRoute(
+            path: '/help',
+            builder: (context, state) => const HelpPage(),
           ),
           GoRoute(
             path: '/events/all',
