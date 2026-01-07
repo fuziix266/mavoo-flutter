@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import '../../../../core/utils/api_client.dart';
 import '../models/post_model.dart';
 
@@ -28,16 +29,28 @@ class PostRepository {
   }
 
   Future<bool> createPost(String text,
-      {String? location, String type = 'text'}) async {
+      {String? location, String type = 'text', String? mediaPath}) async {
     try {
-      final response = await apiClient.dio.post(
-        '/content/post/create',
-        data: {
+      dynamic data;
+
+      if (mediaPath != null) {
+        data = FormData.fromMap({
           'text': text,
           'location': location,
           'post_type': type,
-          // TODO: Add image/video logic
-        },
+          'file': await MultipartFile.fromFile(mediaPath),
+        });
+      } else {
+        data = {
+          'text': text,
+          'location': location,
+          'post_type': type,
+        };
+      }
+
+      final response = await apiClient.dio.post(
+        '/content/post/create',
+        data: data,
       );
 
       if (response.statusCode == 200) {
