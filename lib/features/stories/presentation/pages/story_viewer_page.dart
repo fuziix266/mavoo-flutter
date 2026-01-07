@@ -9,12 +9,14 @@ class StoryViewerPage extends StatefulWidget {
   final int initialUserId;
   final List<StoryUser> allUsers;
   final int viewerId;
+  final Map<int, List<Story>>? preloadedStories;
 
   const StoryViewerPage({
     Key? key,
     required this.initialUserId,
     required this.allUsers,
     required this.viewerId,
+    this.preloadedStories,
   }) : super(key: key);
 
   @override
@@ -59,6 +61,15 @@ class _StoryViewerPageState extends State<StoryViewerPage> {
     
     if (userStoriesMap.containsKey(userId)) {
       setState(() => isLoading = false);
+      _startAutoAdvance();
+      return;
+    }
+
+    if (widget.preloadedStories != null && widget.preloadedStories!.containsKey(userId)) {
+      setState(() {
+        userStoriesMap[userId] = widget.preloadedStories![userId]!;
+        isLoading = false;
+      });
       _startAutoAdvance();
       return;
     }
@@ -193,6 +204,10 @@ class _StoryViewerPageState extends State<StoryViewerPage> {
     final userId = widget.allUsers[currentUserIndex].userId;
     final stories = userStoriesMap[userId] ?? [];
     final userInfo = userInfoMap[userId];
+    final currentUser = widget.allUsers[currentUserIndex];
+
+    final displayName = userInfo?['username'] ?? currentUser.displayName;
+    final profilePic = userInfo?['profile_pic'] ?? currentUser.profilePic;
 
     if (stories.isEmpty) {
       return Scaffold(
@@ -294,10 +309,10 @@ class _StoryViewerPageState extends State<StoryViewerPage> {
                       children: [
                         CircleAvatar(
                           radius: 16,
-                          backgroundImage: userInfo?['profile_pic'] != null && userInfo!['profile_pic'].isNotEmpty
-                              ? NetworkImage(userInfo['profile_pic'])
+                          backgroundImage: profilePic != null && profilePic.isNotEmpty
+                              ? NetworkImage(profilePic)
                               : null,
-                          child: userInfo?['profile_pic'] == null || userInfo!['profile_pic'].isEmpty
+                          child: profilePic == null || profilePic.isEmpty
                               ? const Icon(Icons.person, size: 20)
                               : null,
                         ),
@@ -307,7 +322,7 @@ class _StoryViewerPageState extends State<StoryViewerPage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                userInfo?['username'] ?? 'Usuario',
+                                displayName,
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
