@@ -276,7 +276,7 @@ class TopNavigationBar extends StatelessWidget {
                               context.go('/settings');
                               break;
                             case 'help':
-                              // TODO: Navigate to help
+                              context.go('/help');
                               break;
                             case 'accessibility':
                               // TODO: Navigate to accessibility
