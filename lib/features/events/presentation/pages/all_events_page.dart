@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../injection_container.dart';
+import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../data/models/event_model.dart';
+import '../../data/repositories/event_repository.dart';
 
 class AllEventsPage extends StatelessWidget {
   final List<Event> events;
@@ -49,16 +53,93 @@ class AllEventsPage extends StatelessWidget {
   }
 }
 
-class _EventCard extends StatelessWidget {
+class _EventCard extends StatefulWidget {
   final Event event;
 
   const _EventCard({required this.event});
 
   @override
+  State<_EventCard> createState() => _EventCardState();
+}
+
+class _EventCardState extends State<_EventCard> {
+  late int _currentParticipants;
+  bool _isLoading = false;
+  bool _isRegistered = false; // We don't know initial state, defaulting to false
+
+  @override
+  void initState() {
+    super.initState();
+    _currentParticipants = widget.event.currentParticipants;
+  }
+
+  Future<void> _handleEnrollment() async {
+    final authState = context.read<AuthBloc>().state;
+    if (authState is! AuthAuthenticated) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Debes iniciar sesión para inscribirte')),
+      );
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final repository = sl<EventRepository>();
+      final success = await repository.registerForEvent(
+        widget.event.id,
+        authState.user.id
+      );
+
+      if (mounted) {
+        if (success) {
+          setState(() {
+            _isRegistered = true;
+            _currentParticipants++;
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Inscripción exitosa'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('No se pudo realizar la inscripción'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final isFull = widget.event.maxParticipants != null &&
+                  _currentParticipants >= widget.event.maxParticipants!;
+
     return GestureDetector(
       onTap: () {
-        context.push('/events/${event.id}', extra: event);
+        context.push('/events/${widget.event.id}', extra: widget.event);
       },
       child: Container(
         padding: const EdgeInsets.all(16),
@@ -79,7 +160,7 @@ class _EventCard extends StatelessWidget {
           children: [
             // Nombre del evento
             Text(
-              event.name,
+              widget.event.name,
               style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -100,7 +181,7 @@ class _EventCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
-                event.sport,
+                widget.event.sport,
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 12,
@@ -112,7 +193,7 @@ class _EventCard extends StatelessWidget {
             
             // Descripción
             Text(
-              event.description,
+              widget.event.description,
               style: TextStyle(fontSize: 14, color: Colors.grey.shade700),
               maxLines: 3,
               overflow: TextOverflow.ellipsis,
@@ -125,14 +206,14 @@ class _EventCard extends StatelessWidget {
                 const Icon(Icons.access_time, size: 16, color: Colors.grey),
                 const SizedBox(width: 4),
                 Text(
-                  _formatDate(event.eventDate),
+                  _formatDate(widget.event.eventDate),
                   style: const TextStyle(fontSize: 13, color: Colors.grey),
                 ),
               ],
             ),
             
             // Ubicación
-            if (event.location != null) ...[
+            if (widget.event.location != null) ...[
               const SizedBox(height: 4),
               Row(
                 children: [
@@ -140,7 +221,7 @@ class _EventCard extends StatelessWidget {
                   const SizedBox(width: 4),
                   Expanded(
                     child: Text(
-                      event.location!,
+                      widget.event.location!,
                       style: const TextStyle(fontSize: 13, color: Colors.grey),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -159,10 +240,10 @@ class _EventCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '${event.currentParticipants}/${event.maxParticipants ?? "∞"} participantes',
+                      '$_currentParticipants/${widget.event.maxParticipants ?? "∞"} participantes',
                       style: const TextStyle(fontSize: 12, color: Colors.grey),
                     ),
-                    if (event.isFull)
+                    if (isFull)
                       Container(
                         margin: const EdgeInsets.only(top: 4),
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -182,9 +263,9 @@ class _EventCard extends StatelessWidget {
                   ],
                 ),
                 ElevatedButton(
-                  onPressed: event.isFull ? null : () {
-                    // TODO: Implementar inscripción
-                  },
+                  onPressed: (isFull && !_isRegistered) || _isLoading || _isRegistered
+                      ? null
+                      : _handleEnrollment,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF0046fc),
                     foregroundColor: Colors.white,
@@ -192,11 +273,24 @@ class _EventCard extends StatelessWidget {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                     ),
+                    disabledBackgroundColor: _isRegistered ? Colors.green.withOpacity(0.1) : Colors.grey.shade300,
                   ),
-                  child: Text(
-                    event.isFull ? 'Lleno' : 'Inscribirme',
-                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-                  ),
+                  child: _isLoading
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)
+                      )
+                    : Text(
+                        _isRegistered
+                          ? 'Inscrito'
+                          : (isFull ? 'Lleno' : 'Inscribirme'),
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: _isRegistered ? Colors.green : (isFull ? Colors.grey.shade600 : Colors.white),
+                        ),
+                      ),
                 ),
               ],
             ),
