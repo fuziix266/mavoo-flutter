@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
 import '../../data/models/story_model.dart';
+import '../../data/models/story_user_model.dart';
+import '../pages/story_viewer_page.dart';
 
 class StoriesCarousel extends StatelessWidget {
   final List<UserStories> userStories;
+  final int viewerId;
 
-  const StoriesCarousel({Key? key, required this.userStories}) : super(key: key);
+  const StoriesCarousel({
+    Key? key,
+    required this.userStories,
+    required this.viewerId,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +32,33 @@ class StoriesCarousel extends StatelessWidget {
           
           return GestureDetector(
             onTap: () {
-              // TODO: Abrir visor de stories
+              final allUsers = userStories.map((us) => StoryUser(
+                userId: us.userId,
+                storyCount: us.stories.length,
+                hasUnviewed: us.hasUnviewed,
+                latestStoryTime: DateTime.now(), // Approximate
+                // No name/pic available in UserStories, so they will be null
+                // The viewer will use "User $id" or similar if we don't provide it
+                // We can try to provide a better name if possible, but UserStories doesn't have it.
+                // We could set username to 'User ${us.userId}'
+                username: 'User ${us.userId}',
+              )).toList();
+
+              final preloadedStories = {
+                for (var us in userStories) us.userId: us.stories
+              };
+
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => StoryViewerPage(
+                    initialUserId: userStory.userId,
+                    allUsers: allUsers,
+                    viewerId: viewerId,
+                    preloadedStories: preloadedStories,
+                  ),
+                ),
+              );
             },
             child: Container(
               width: 70,
