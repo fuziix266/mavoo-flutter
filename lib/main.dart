@@ -143,11 +143,12 @@ GoRouter _createRouter(BuildContext context) {
           GoRoute(
             path: '/messages/:id',
             builder: (context, state) {
-              final chat = state.extra as ChatModel;
-              return ChatDetailPage(
-                chatId: chat.id,
-                username: chat.username,
-                profilePic: chat.userProfilePic,
+              // Now we reuse MessagesPage which handles the layout
+              final chat = state.extra is ChatModel ? state.extra as ChatModel : null;
+              final chatId = state.pathParameters['id'];
+              return MessagesPage(
+                chatId: chatId,
+                initialChat: chat,
               );
             },
           ),

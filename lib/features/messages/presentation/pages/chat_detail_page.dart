@@ -7,12 +7,14 @@ class ChatDetailPage extends StatefulWidget {
   final int chatId;
   final String username;
   final String profilePic;
+  final bool isEmbedded;
 
   const ChatDetailPage({
     Key? key,
     required this.chatId,
     required this.username,
     required this.profilePic,
+    this.isEmbedded = false,
   }) : super(key: key);
 
   @override
@@ -33,6 +35,19 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
     _loadMessages();
   }
 
+  // Update messages if chatId changes
+  @override
+  void didUpdateWidget(ChatDetailPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.chatId != oldWidget.chatId) {
+      setState(() {
+        _isLoading = true;
+        _messages = [];
+      });
+      _loadMessages();
+    }
+  }
+
   Future<void> _loadMessages() async {
     final list = await _repository.getMessages(widget.chatId);
     if (mounted) {
@@ -46,11 +61,16 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
 
   void _scrollToBottom() {
     if (_scrollController.hasClients) {
-      _scrollController.animateTo(
-        _scrollController.position.maxScrollExtent,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOut,
-      );
+      // Small delay to ensure list is rendered
+      Future.delayed(const Duration(milliseconds: 100), () {
+        if (_scrollController.hasClients) {
+          _scrollController.animateTo(
+            _scrollController.position.maxScrollExtent,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOut,
+          );
+        }
+      });
     }
   }
 
@@ -86,6 +106,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 1,
+        automaticallyImplyLeading: !widget.isEmbedded, // Hide back button if embedded
         iconTheme: const IconThemeData(color: Colors.black),
         title: Row(
           children: [
