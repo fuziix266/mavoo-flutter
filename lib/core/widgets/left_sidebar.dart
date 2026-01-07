@@ -18,6 +18,9 @@ class LeftSidebar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Get current location to determine active state
+    final String location = GoRouterState.of(context).matchedLocation;
+
     return Container(
       width: expanded ? 360 : 72, // Increased from 280 to 300
       decoration: BoxDecoration(
@@ -36,7 +39,8 @@ class LeftSidebar extends StatelessWidget {
                 _NavItem(
                   icon: Icons.home,
                   label: 'Home',
-                  isActive: currentIndex == 0,
+                  // Home is active if we are on /home AND the internal index is 0
+                  isActive: location == '/home' && currentIndex == 0,
                   onTap: () {
                     GoRouter.of(context).go('/home');
                     onNavigationChanged(0);
@@ -47,8 +51,11 @@ class LeftSidebar extends StatelessWidget {
                 _NavItem(
                   icon: Icons.event,
                   label: 'Events',
-                  isActive: currentIndex == 1,
+                  // Events is active if we are on /home AND the internal index is 1 (tab mode)
+                  // OR if we are on a specific events route (though /events is not explicitly defined in main.dart)
+                  isActive: (location == '/home' && currentIndex == 1) || location.startsWith('/events'),
                   onTap: () {
+                    // Navigate to home and set index to 1 to show Events tab
                     onNavigationChanged(1);
                     GoRouter.of(context).go('/home');
                   },
@@ -58,7 +65,7 @@ class LeftSidebar extends StatelessWidget {
                 _NavItem(
                   icon: Icons.sports_soccer,
                   label: 'Mi Actividad',
-                  isActive: false,
+                  isActive: location.startsWith('/my-activity'),
                   onTap: () {
                     GoRouter.of(context).go('/my-activity');
                   },
@@ -68,7 +75,7 @@ class LeftSidebar extends StatelessWidget {
                 _NavItem(
                   icon: Icons.widgets,
                   label: 'Widgets',
-                  isActive: false,
+                  isActive: location.startsWith('/widgets'),
                   onTap: () {
                     GoRouter.of(context).go('/widgets');
                   },
@@ -78,9 +85,8 @@ class LeftSidebar extends StatelessWidget {
                 _NavItem(
                   icon: Icons.watch,
                   label: 'Mis dispositivos',
-                  isActive: false,
+                  isActive: location.startsWith('/devices'),
                   onTap: () {
-                    print('Navigating to /devices'); // Debug
                     GoRouter.of(context).go('/devices');
                   },
                   showLabel: expanded,
@@ -89,7 +95,7 @@ class LeftSidebar extends StatelessWidget {
                 _NavItem(
                   icon: Icons.notifications,
                   label: 'Notifications',
-                  isActive: false,
+                  isActive: location.startsWith('/notifications'),
                   badge: '3',
                   onTap: () {
                     GoRouter.of(context).go('/notifications');
@@ -100,7 +106,7 @@ class LeftSidebar extends StatelessWidget {
                 _NavItem(
                   icon: Icons.message,
                   label: 'Messages',
-                  isActive: false,
+                  isActive: location.startsWith('/messages'),
                   badge: '5',
                   onTap: () {
                     GoRouter.of(context).go('/messages');
@@ -111,7 +117,7 @@ class LeftSidebar extends StatelessWidget {
                 _NavItem(
                   icon: Icons.video_library,
                   label: 'Reels',
-                  isActive: false,
+                  isActive: location.startsWith('/reels'),
                   onTap: () {
                     GoRouter.of(context).go('/reels');
                   },
@@ -121,7 +127,7 @@ class LeftSidebar extends StatelessWidget {
                 _NavItem(
                   icon: Icons.add_box,
                   label: 'Add Post',
-                  isActive: false,
+                  isActive: location == '/add-post',
                   onTap: () {
                     GoRouter.of(context).push('/add-post');
                   },
