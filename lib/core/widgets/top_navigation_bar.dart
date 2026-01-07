@@ -279,7 +279,7 @@ class TopNavigationBar extends StatelessWidget {
                               // TODO: Navigate to help
                               break;
                             case 'accessibility':
-                              // TODO: Navigate to accessibility
+                              context.go('/accessibility');
                               break;
                             case 'language':
                               // TODO: Navigate to language settings
