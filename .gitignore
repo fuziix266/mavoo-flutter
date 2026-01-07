@@ -43,3 +43,35 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Variables de entorno y credenciales
+.env
+.env.local
+.env.*.local
+*.key
+*.pem
+*.p12
+*.pfx
+credentials.json
+client_secret*.json
+oauth*.json
+service-account*.json
+google-services.json
+GoogleService-Info.plist
+
+# Archivos de configuración sensibles
+/lib/core/config/api_keys.dart
+/lib/core/config/secrets.dart
+api_keys.dart
+secrets.dart
+
+# Certificados
+*.crt
+*.cert
+*.cer
+*.der
+
+# Archivos de backup
+*.bak
+*.backup
+*.old

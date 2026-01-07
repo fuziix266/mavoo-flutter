@@ -17,7 +17,8 @@ class TopNavigationBar extends StatelessWidget {
   }) : super(key: key);
 
   void _showNotificationsOverlay(BuildContext context, GlobalKey buttonKey) {
-    final RenderBox renderBox = buttonKey.currentContext!.findRenderObject() as RenderBox;
+    final RenderBox renderBox =
+        buttonKey.currentContext!.findRenderObject() as RenderBox;
     final offset = renderBox.localToGlobal(Offset.zero);
 
     showDialog(
@@ -27,7 +28,9 @@ class TopNavigationBar extends StatelessWidget {
         children: [
           Positioned(
             top: offset.dy + renderBox.size.height + 8,
-            right: MediaQuery.of(context).size.width - (offset.dx + renderBox.size.width) - 10,
+            right: MediaQuery.of(context).size.width -
+                (offset.dx + renderBox.size.width) -
+                10,
             child: const NotificationsOverlay(),
           ),
         ],
@@ -64,238 +67,254 @@ class TopNavigationBar extends StatelessWidget {
           bottom: BorderSide(color: AppColors.borderLight, width: 1),
         ),
       ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24),
-        child: Row(
-          children: [
-            // Left Section: Logo + Search
-            Expanded(
-              child: Row(
-                children: [
-                  // Logo
-                  Container(
-                    width: 32,
-                    height: 32,
-                    decoration: BoxDecoration(
-                      color: AppColors.primary,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Icon(
-                      Icons.sports_score,
-                      color: Colors.white,
-                      size: 20,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  const Text(
-                    'Mavoo',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.textPrimary,
-                    ),
-                  ),
-                  const SizedBox(width: 32),
-                  // Search Bar (clickable - navigates to search page)
-                  GestureDetector(
-                    onTap: () => context.go('/search'),
-                    child: Container(
-                      constraints: const BoxConstraints(maxWidth: 180),
-                      height: 40,
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      decoration: BoxDecoration(
-                        color: AppColors.backgroundLight,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: AppColors.borderLight),
-                      ),
-                      child: Row(
-                        children: [
-                          const Icon(
-                            Icons.search,
-                            color: AppColors.textSecondary,
-                            size: 20,
-                          ),
-                          const SizedBox(width: 8),
-                          const Text(
-                            'Buscar...',
-                            style: TextStyle(
-                              color: AppColors.textSecondary,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            
-            // Center Section: Navigation Icons
-            Row(
-              mainAxisSize: MainAxisSize.min,
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1600),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Row(
               children: [
-                _NavIcon(
-                  icon: Icons.home,
-                  isActive: currentIndex == 0,
-                  onTap: () => onNavigationChanged(0),
-                ),
-                const SizedBox(width: 8),
-                _NavIcon(
-                  icon: Icons.calendar_month,
-                  isActive: currentIndex == 1,
-                  onTap: () => onNavigationChanged(1),
-                ),
-                const SizedBox(width: 8),
-                _NavIcon(
-                  icon: Icons.groups,
-                  isActive: currentIndex == 2,
-                  onTap: () => onNavigationChanged(2),
-                ),
-                const SizedBox(width: 8),
-                _NavIcon(
-                  icon: Icons.leaderboard,
-                  isActive: currentIndex == 3,
-                  onTap: () => onNavigationChanged(3),
-                ),
-              ],
-            ),
-            
-            // Right Section: Actions + Profile
-            Expanded(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  IconButton(
-                    key: notificationKey,
-                    icon: const Icon(Icons.notifications_outlined),
-                    onPressed: () => _showNotificationsOverlay(context, notificationKey),
-                    color: AppColors.textSecondary,
-                  ),
-                  const SizedBox(width: 8),
-                  IconButton(
-                    icon: const Icon(Icons.chat_bubble_outline),
-                    onPressed: () => _showChatOverlay(context),
-                    color: AppColors.textSecondary,
-                  ),
-                  const SizedBox(width: 16),
-                  // Profile Avatar with Custom Dropdown Menu
-                  BlocBuilder<AuthBloc, AuthState>(
-                    builder: (context, state) {
-                      String? profileImage;
-                      if (state is AuthAuthenticated) {
-                        profileImage = state.user.profileImage;
-                      }
-
-                      return PopupMenuButton<String>(
-                        offset: const Offset(-200, 50),
-                        elevation: 8,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                // Left Section: Logo + Search
+                Expanded(
+                  child: Row(
+                    children: [
+                      // Logo
+                      Container(
+                        width: 32,
+                        height: 32,
+                        decoration: BoxDecoration(
+                          color: AppColors.primary,
+                          borderRadius: BorderRadius.circular(8),
                         ),
-                        color: AppColors.surfaceLight,
+                        child: const Icon(
+                          Icons.sports_score,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      const Text(
+                        'Mavoo',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                      const SizedBox(width: 32),
+                      // Search Bar (clickable - navigates to search page)
+                      GestureDetector(
+                        onTap: () => context.go('/search'),
                         child: Container(
-                          width: 40,
+                          constraints: const BoxConstraints(maxWidth: 180),
                           height: 40,
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
                           decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(color: AppColors.borderLight, width: 2),
                             color: AppColors.backgroundLight,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: AppColors.borderLight),
                           ),
-                          child: ClipOval(
-                            child: profileImage != null && profileImage.isNotEmpty
-                                ? Image.network(
-                                    profileImage,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (context, error, stackTrace) {
-                                      return const Icon(
-                                        Icons.person,
-                                        color: AppColors.textSecondary,
-                                        size: 20,
-                                      );
-                                    },
-                                  )
-                                : const Icon(
-                                    Icons.person,
-                                    color: AppColors.textSecondary,
-                                    size: 20,
-                                  ),
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.search,
+                                color: AppColors.textSecondary,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 8),
+                              const Text(
+                                'Buscar...',
+                                style: TextStyle(
+                                  color: AppColors.textSecondary,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                        itemBuilder: (BuildContext context) => [
-                      // Settings
-                      PopupMenuItem<String>(
-                        value: 'settings',
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                        child: _UserMenuItem(
-                          icon: Icons.settings,
-                          label: 'Configuración y privacidad',
-                        ),
-                      ),
-                      // Help
-                      PopupMenuItem<String>(
-                        value: 'help',
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                        child: _UserMenuItem(
-                          icon: Icons.help_outline,
-                          label: 'Ayuda y soporte técnico',
-                        ),
-                      ),
-                      // Accessibility
-                      PopupMenuItem<String>(
-                        value: 'accessibility',
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                        child: _UserMenuItem(
-                          icon: Icons.accessibility_new,
-                          label: 'Accesibilidad',
-                        ),
-                      ),
-                      // Language
-                      PopupMenuItem<String>(
-                        value: 'language',
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                        child: _UserMenuItem(
-                          icon: Icons.language,
-                          label: 'Idiomas',
-                        ),
-                      ),
-                      const PopupMenuDivider(height: 1),
-                      // Logout
-                      PopupMenuItem<String>(
-                        value: 'logout',
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                        child: _UserMenuItem(
-                          icon: Icons.logout,
-                          label: 'Cerrar sesión',
                         ),
                       ),
                     ],
-                        onSelected: (String value) {
-                          switch (value) {
-                            case 'settings':
-                              context.go('/settings');
-                              break;
-                            case 'help':
-                              // TODO: Navigate to help
-                              break;
-                            case 'accessibility':
-                              context.go('/accessibility');
-                              break;
-                            case 'language':
-                              // TODO: Navigate to language settings
-                              break;
-                            case 'logout':
-                              context.read<AuthBloc>().add(AuthLogoutRequested());
-                              break;
-                          }
-                        },
-                      );
-                    },
                   ),
-                ],
-              ),
+                ),
+
+                // Center Section: Navigation Icons
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _NavIcon(
+                      icon: Icons.home,
+                      isActive: currentIndex == 0,
+                      onTap: () => onNavigationChanged(0),
+                    ),
+                    const SizedBox(width: 8),
+                    _NavIcon(
+                      icon: Icons.calendar_month,
+                      isActive: currentIndex == 1,
+                      onTap: () => onNavigationChanged(1),
+                    ),
+                    const SizedBox(width: 8),
+                    _NavIcon(
+                      icon: Icons.groups,
+                      isActive: currentIndex == 2,
+                      onTap: () => onNavigationChanged(2),
+                    ),
+                    const SizedBox(width: 8),
+                    _NavIcon(
+                      icon: Icons.leaderboard,
+                      isActive: currentIndex == 3,
+                      onTap: () => onNavigationChanged(3),
+                    ),
+                  ],
+                ),
+
+                // Right Section: Actions + Profile
+                Expanded(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      IconButton(
+                        key: notificationKey,
+                        icon: const Icon(Icons.notifications_outlined),
+                        onPressed: () =>
+                            _showNotificationsOverlay(context, notificationKey),
+                        color: AppColors.textSecondary,
+                      ),
+                      const SizedBox(width: 8),
+                      IconButton(
+                        icon: const Icon(Icons.chat_bubble_outline),
+                        onPressed: () => _showChatOverlay(context),
+                        color: AppColors.textSecondary,
+                      ),
+                      const SizedBox(width: 16),
+                      // Profile Avatar with Custom Dropdown Menu
+                      BlocBuilder<AuthBloc, AuthState>(
+                        builder: (context, state) {
+                          String? profileImage;
+                          if (state is AuthAuthenticated) {
+                            profileImage = state.user.profileImage;
+                          }
+
+                          return PopupMenuButton<String>(
+                            offset: const Offset(-200, 50),
+                            elevation: 8,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            color: AppColors.surfaceLight,
+                            child: Container(
+                              width: 40,
+                              height: 40,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                    color: AppColors.borderLight, width: 2),
+                                color: AppColors.backgroundLight,
+                              ),
+                              child: ClipOval(
+                                child: profileImage != null &&
+                                        profileImage.isNotEmpty
+                                    ? Image.network(
+                                        profileImage,
+                                        fit: BoxFit.cover,
+                                        errorBuilder:
+                                            (context, error, stackTrace) {
+                                          return const Icon(
+                                            Icons.person,
+                                            color: AppColors.textSecondary,
+                                            size: 20,
+                                          );
+                                        },
+                                      )
+                                    : const Icon(
+                                        Icons.person,
+                                        color: AppColors.textSecondary,
+                                        size: 20,
+                                      ),
+                              ),
+                            ),
+                            itemBuilder: (BuildContext context) => [
+                              // Settings
+                              PopupMenuItem<String>(
+                                value: 'settings',
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 12),
+                                child: _UserMenuItem(
+                                  icon: Icons.settings,
+                                  label: 'Configuración y privacidad',
+                                ),
+                              ),
+                              // Help
+                              PopupMenuItem<String>(
+                                value: 'help',
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 12),
+                                child: _UserMenuItem(
+                                  icon: Icons.help_outline,
+                                  label: 'Ayuda y soporte técnico',
+                                ),
+                              ),
+                              // Accessibility
+                              PopupMenuItem<String>(
+                                value: 'accessibility',
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 12),
+                                child: _UserMenuItem(
+                                  icon: Icons.accessibility_new,
+                                  label: 'Accesibilidad',
+                                ),
+                              ),
+                              // Language
+                              PopupMenuItem<String>(
+                                value: 'language',
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 12),
+                                child: _UserMenuItem(
+                                  icon: Icons.language,
+                                  label: 'Idiomas',
+                                ),
+                              ),
+                              const PopupMenuDivider(height: 1),
+                              // Logout
+                              PopupMenuItem<String>(
+                                value: 'logout',
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 12),
+                                child: _UserMenuItem(
+                                  icon: Icons.logout,
+                                  label: 'Cerrar sesión',
+                                ),
+                              ),
+                            ],
+                            onSelected: (String value) {
+                              switch (value) {
+                                case 'settings':
+                                  context.go('/settings');
+                                  break;
+                                case 'help':
+                                  // TODO: Navigate to help
+                                  break;
+                                case 'accessibility':
+                                  context.go('/accessibility');
+                                  break;
+                                case 'language':
+                                  // TODO: Navigate to language settings
+                                  break;
+                                case 'logout':
+                                  context
+                                      .read<AuthBloc>()
+                                      .add(AuthLogoutRequested());
+                                  break;
+                              }
+                            },
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -321,7 +340,9 @@ class _NavIcon extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: isActive ? AppColors.primary.withOpacity(0.1) : Colors.transparent,
+          color: isActive
+              ? AppColors.primary.withOpacity(0.1)
+              : Colors.transparent,
           borderRadius: BorderRadius.circular(8),
         ),
         child: Icon(

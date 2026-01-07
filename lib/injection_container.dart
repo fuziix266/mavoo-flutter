@@ -10,6 +10,7 @@ import '../../features/auth/domain/usecases/login_usecase.dart';
 import '../../features/auth/domain/usecases/logout_usecase.dart';
 import '../../features/auth/domain/usecases/register_usecase.dart';
 import '../../features/auth/domain/usecases/social_login_usecase.dart';
+import '../../features/auth/domain/usecases/update_profile_usecase.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/feed/data/datasources/feed_remote_data_source.dart';
 import '../../features/feed/data/repositories/feed_repository_impl.dart';
@@ -69,6 +70,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => CheckAuthStatusUseCase(sl()));
   sl.registerLazySingleton(() => LogoutUseCase(sl()));
   sl.registerLazySingleton(() => SocialLoginUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateProfileUseCase(sl()));
   sl.registerLazySingleton(() => GetPostsUseCase(sl()));
 
   // Features - Auth Bloc
@@ -78,6 +80,7 @@ Future<void> init() async {
         checkAuthStatusUseCase: sl(),
         logoutUseCase: sl(),
         socialLoginUseCase: sl(),
+        updateProfileUseCase: sl(),
       ));
 
   // Features - Feed Bloc

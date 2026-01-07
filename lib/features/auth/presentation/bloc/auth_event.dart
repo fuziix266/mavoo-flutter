@@ -61,3 +61,12 @@ class AuthSyncProfileConfirmed extends AuthEvent {
   @override
   List<Object> get props => [user, newData];
 }
+
+class AuthUpdateProfileRequested extends AuthEvent {
+  final Map<String, dynamic> data;
+
+  const AuthUpdateProfileRequested(this.data);
+
+  @override
+  List<Object> get props => [data];
+}

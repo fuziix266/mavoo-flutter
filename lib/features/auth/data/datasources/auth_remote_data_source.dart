@@ -7,8 +7,10 @@ import '../models/user_model.dart';
 
 abstract class AuthRemoteDataSource {
   Future<UserModel> login(String email, String password);
-  Future<UserModel> register(String email, String password, String username, String fullName);
+  Future<UserModel> register(
+      String email, String password, String username, String fullName);
   Future<UserModel> socialLogin(Map<String, dynamic> userData);
+  Future<UserModel> updateProfile(Map<String, dynamic> data);
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -29,31 +31,39 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
       if (response.statusCode == 200) {
         final data = response.data;
-        
+
         // Verificar si hay un error lógico en la respuesta exitosa
         if (data['status'] != null && data['status'] != 200) {
-           throw ServerFailure(data['message'] ?? data['error'] ?? 'Authentication Failed');
+          throw ServerFailure(
+              data['message'] ?? data['error'] ?? 'Authentication Failed');
         }
-        
+
         if (data['user'] == null) {
           throw ServerFailure(data['message'] ?? 'User data missing');
         }
 
         // El backend devuelve: {status: 200, message: "...", token: "...", user: {...}}
         // Combinamos user + token
-        final Map<String, dynamic> userMap = Map<String, dynamic>.from(data['user']);
-        userMap['token'] = data['token']; 
+        final Map<String, dynamic> userMap =
+            Map<String, dynamic>.from(data['user']);
+        userMap['token'] = data['token'];
         return UserModel.fromJson(userMap);
       } else {
-        throw ServerFailure(response.data['message'] ?? response.data['error'] ?? 'Server Error');
+        throw ServerFailure(response.data['message'] ??
+            response.data['error'] ??
+            'Server Error');
       }
     } on DioException catch (e) {
-      throw ServerFailure(e.response?.data['message'] ?? e.response?.data['error'] ?? e.message ?? 'Network Error');
+      throw ServerFailure(e.response?.data['message'] ??
+          e.response?.data['error'] ??
+          e.message ??
+          'Network Error');
     }
   }
 
   @override
-  Future<UserModel> register(String email, String password, String username, String fullName) async {
+  Future<UserModel> register(
+      String email, String password, String username, String fullName) async {
     try {
       // Separamos fullName en first y last name de manera simple
       final names = fullName.split(' ');
@@ -77,8 +87,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         // Para simplificar, podríamos retornar un UserModel "dummy" o requerir login.
         // Por ahora retornamos un modelo básico.
         return UserModel(
-          id: '0', 
-          email: email, 
+          id: '0',
+          email: email,
           username: username,
           fullName: fullName,
         );
@@ -109,25 +119,61 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         } else {
           throw ServerFailure('Invalid response format from server');
         }
-        
+
         // Backend returns response_code: '1' for success, '0' for failure
         final responseCode = data['response_code']?.toString() ?? '0';
         if (responseCode == '0') {
-           throw ServerFailure(data['message']?.toString() ?? 'Social Login Failed');
-        }
-        
-        if (data['user'] == null) {
-          throw ServerFailure(data['message']?.toString() ?? 'User data missing');
+          throw ServerFailure(
+              data['message']?.toString() ?? 'Social Login Failed');
         }
 
-        final Map<String, dynamic> userMap = Map<String, dynamic>.from(data['user']);
-        userMap['token'] = data['token']; 
+        if (data['user'] == null) {
+          throw ServerFailure(
+              data['message']?.toString() ?? 'User data missing');
+        }
+
+        final Map<String, dynamic> userMap =
+            Map<String, dynamic>.from(data['user']);
+        userMap['token'] = data['token'];
         return UserModel.fromJson(userMap);
       } else {
-        throw ServerFailure(response.data['message'] ?? response.data['error'] ?? 'Server Error');
+        throw ServerFailure(response.data['message'] ??
+            response.data['error'] ??
+            'Server Error');
       }
     } on DioException catch (e) {
-      throw ServerFailure(e.response?.data['message'] ?? e.response?.data['error'] ?? e.message ?? 'Network Error');
+      throw ServerFailure(e.response?.data['message'] ??
+          e.response?.data['error'] ??
+          e.message ??
+          'Network Error');
+    }
+  }
+
+  @override
+  Future<UserModel> updateProfile(Map<String, dynamic> data) async {
+    try {
+      final response = await apiClient.dio.post(
+        ApiConstants.userUpdate,
+        data: data,
+      );
+
+      if (response.statusCode == 200) {
+        final resData = response.data;
+        if (resData['success'] == false) {
+          throw ServerFailure(resData['error'] ?? 'Update Failed');
+        }
+
+        final userMap = Map<String, dynamic>.from(resData['user']);
+        // Backend update doesn't usually return token, reuse existing or assume session active.
+        // If we want to persist token, we might need to pass it or re-fetch it.
+        // For now, assuming just user data update.
+        return UserModel.fromJson(userMap);
+      } else {
+        throw ServerFailure(response.data['error'] ?? 'Server Error');
+      }
+    } on DioException catch (e) {
+      throw ServerFailure(
+          e.response?.data['error'] ?? e.message ?? 'Network Error');
     }
   }
 }

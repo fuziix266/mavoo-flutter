@@ -29,6 +29,7 @@ class ApiConstants {
 
   // Endpoints User
   static const String userProfile = '/user/profile';
+  static const String userUpdate = '/user/update';
 
   // Endpoints Feed (Ejemplo, ajustar según controllers reales)
   static const String posts = '/content/post';

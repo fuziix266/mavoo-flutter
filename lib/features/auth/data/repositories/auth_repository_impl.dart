@@ -32,13 +32,15 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, User>> register(String email, String password, String username, String fullName) async {
+  Future<Either<Failure, User>> register(
+      String email, String password, String username, String fullName) async {
     try {
-      final user = await remoteDataSource.register(email, password, username, fullName);
-      // Usually register also logs in, but depends on backend. 
+      final user =
+          await remoteDataSource.register(email, password, username, fullName);
+      // Usually register also logs in, but depends on backend.
       // Assuming register returns user but maybe not token immediately if email verification is needed.
-      // But based on mavoo analysis, register just returns success message usually. 
-      // Let's check remoteDataSource implementation later. 
+      // But based on mavoo analysis, register just returns success message usually.
+      // Let's check remoteDataSource implementation later.
       // For now, if user has token, cache it.
       if (user.token != null) {
         await localDataSource.cacheToken(user.token!);
@@ -77,13 +79,28 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, User>> socialLogin(Map<String, dynamic> userData) async {
+  Future<Either<Failure, User>> socialLogin(
+      Map<String, dynamic> userData) async {
     try {
       final user = await remoteDataSource.socialLogin(userData);
       // Cache token and user data
       if (user.token != null) {
         await localDataSource.cacheToken(user.token!);
       }
+      await localDataSource.cacheUser(user);
+      return Right(user);
+    } on ServerFailure catch (e) {
+      return Left(e);
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, User>> updateProfile(Map<String, dynamic> data) async {
+    try {
+      final user = await remoteDataSource.updateProfile(data);
+      // Update local cache with new user data
       await localDataSource.cacheUser(user);
       return Right(user);
     } on ServerFailure catch (e) {
